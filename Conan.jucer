@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="cn1lxm" name="Conan" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="1" jucerFormatVersion="1" version="0.0.1"
+              companyName="Glafo's" pluginManufacturerCode="GLAF" pluginCode="CONA"
+              pluginVST3Category="Distortion,Fx">
+  <MAINGROUP id="P02Tfp" name="Conan">
+    <GROUP id="{E0B5D8C0-8ACF-026C-879F-C7C12E8769CF}" name="Source">
+      <FILE id="H0Xruc" name="Utils.h" compile="0" resource="0" file="Source/Utils.h"/>
+      <FILE id="p7101F" name="PresetManager.h" compile="0" resource="0" file="Source/PresetManager.h"/>
+      <FILE id="AUjDeK" name="MultibandDistortion.cpp" compile="1" resource="0"
+            file="Source/MultibandDistortion.cpp"/>
+      <FILE id="ZbPvlT" name="MultibandDistortion.h" compile="0" resource="0"
+            file="Source/MultibandDistortion.h"/>
+      <FILE id="o4yduD" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/LookAndFeel.cpp"/>
+      <FILE id="KTy2Mr" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
+      <FILE id="okkUFZ" name="GuiComponents.cpp" compile="1" resource="0"
+            file="Source/GuiComponents.cpp"/>
+      <FILE id="OqtwFp" name="GuiComponents.h" compile="0" resource="0" file="Source/GuiComponents.h"/>
+      <FILE id="rcKeE5" name="Filters.cpp" compile="1" resource="0" file="Source/Filters.cpp"/>
+      <FILE id="dXLTYe" name="Filters.h" compile="0" resource="0" file="Source/Filters.h"/>
+      <FILE id="fcDSvX" name="Parameters.cpp" compile="1" resource="0" file="Source/Parameters.cpp"/>
+      <FILE id="euhNgf" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
+      <FILE id="IqqeY0" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="uYQbQ4" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="qVeTVh" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="Rk416y" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <EXPORTFORMATS>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="Conan"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="Conan"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../Libs/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../Libs/JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2022>
+  </EXPORTFORMATS>
+</JUCERPROJECT>
