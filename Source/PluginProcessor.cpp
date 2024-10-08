@@ -101,7 +101,13 @@ void ConanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     int nChannels = getTotalNumInputChannels();
 
-    distortionParameters.set("sampleRate", sampleRate);
+    oversampling.numChannels = getTotalNumInputChannels();
+    oversampling.initProcessing(samplesPerBlock);
+    oversampling.reset();
+
+    setLatencySamples(oversampling.getLatencyInSamples());  
+
+    distortionParameters.set("sampleRate", sampleRate * (pow(2, oversampleFactor)));
     distortionParameters.set("blockSize", samplesPerBlock);
     distortionParameters.set("nChannels", nChannels);
 
@@ -123,8 +129,7 @@ void ConanAudioProcessor::updateDSP()
 
 void ConanAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    oversampling.reset();  // Make sure you reset oversampling
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -168,15 +173,21 @@ void ConanAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         updateDSP();
     }
 
+    dsp::AudioBlock<float> block(buffer);
+    auto oversampledBlock = oversampling.processSamplesUp(block);
+
     float* outputBuffers[2] = { nullptr, nullptr };
-    outputBuffers[0] = buffer.getWritePointer(0);
-    if (totalNumOutputChannels > 1) outputBuffers[1] = buffer.getWritePointer(1);
+    outputBuffers[0] = oversampledBlock.getChannelPointer(0);
+    if (totalNumOutputChannels > 1) outputBuffers[1] = oversampledBlock.getChannelPointer(1);
 
     distortion.processBlock(
         outputBuffers,
         buffer.getNumChannels(),
-        buffer.getNumSamples()
+        oversampledBlock.getNumSamples()
     );
+
+    oversampling.processSamplesDown(block);
+
 }
 
 //==============================================================================
@@ -235,7 +246,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ConanAudioProcessor::createP
     layout.add(std::make_unique <juce::AudioParameterFloat>(
         apvtsParameters[ParameterNames::DRIVE]->id,
         apvtsParameters[ParameterNames::DRIVE]->displayValue,
-        juce::NormalisableRange<float>{ 1.0f, 10.0f, 0.01f },
+        juce::NormalisableRange<float>{ 1.0f, 30.0f, 0.01f },
         apvtsParameters[ParameterNames::DRIVE]->getDefault()
     ));    
     

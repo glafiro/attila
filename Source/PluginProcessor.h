@@ -89,5 +89,8 @@ private:
 
     MultibandDistortion distortion;
 
+    size_t oversampleFactor = 4;
+    dsp::Oversampling<float> oversampling{ 2, oversampleFactor, juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, false};
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConanAudioProcessor)
 };

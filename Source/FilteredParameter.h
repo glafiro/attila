@@ -1,7 +1,7 @@
 
 #pragma once
 
-#define DEFAULT_FILTER_FREQ 0.5f
+#define DEFAULT_FILTER_FREQ 3.5f
 #define DEFAULT_SR          44100.0f
 #define M_PI 3.14159265358979323846
 #include <cmath>

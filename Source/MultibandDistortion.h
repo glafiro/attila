@@ -15,11 +15,10 @@ float msToCoefficient(float sampleRate, float length) {
 	return expf(-1.0f / lengthToSamples(sampleRate, length));
 }
 
-using std::array;
-
 #define NOISE_THRESHOLD 0.01f
 
 enum DistortionType { HARD, SIGMA, SQUARE, SINE };
+
 
 class MultibandDistortion
 {
@@ -57,16 +56,16 @@ public:
 	}
 
 	void processBlock(float* const* inputBuffer, int numChannels, int numSamples) {
-
 		for (int ch = 0; ch < numChannels; ++ch) {
 			for (auto s = 0; s < numSamples; ++s) {
 				auto sample = inputBuffer[ch][s];
 
-				float output;
-
 				float currentInputGain = inputGain.next();
 				float currentOutputGain = outputGain.next();
 				float currentDrive = drive.next();
+				float currentMix = mix.next();
+
+				float output;
 
 				switch (type) {
 				case(DistortionType::HARD):
@@ -86,8 +85,8 @@ public:
 					break;
 				}
 
-				float dry = 1.0f - mix.next();
-				inputBuffer[ch][s] = limit(output) * currentOutputGain;
+				float dry = 1.0f - currentMix;
+				inputBuffer[ch][s] = (sample * dry + limit(output) * currentMix) * currentOutputGain;
 			}
 		}
 	}
