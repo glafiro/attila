@@ -19,15 +19,18 @@ using std::unordered_map;
 
 enum ParameterNames{INPUT_GAIN, OUTPUT_GAIN, 
     DRIVE, MIX, TYPE, 
+    BITCRUSH_BIT, BITCRUSH_ON,
     PARAMETER_COUNT
 };
 
 static std::array<std::unique_ptr<IAPVTSParameter>, ParameterNames::PARAMETER_COUNT> apvtsParameters{
-    std::make_unique<APVTSParameterFloat>("inputGain",      "Input Gain",        0.0f),
-    std::make_unique<APVTSParameterFloat>("outputGain",     "Output Gain",       -12.0f),
-    std::make_unique<APVTSParameterFloat>("drive",          "Drive",             1.0f),
-    std::make_unique<APVTSParameterFloat>("mix",            "Mix",               100.0f),
-    std::make_unique<APVTSParameterInt>  ("distortionType", "Distortion Type",   0)
+    std::make_unique<APVTSParameterFloat> ("inputGain",      "Input Gain",        0.0f),
+    std::make_unique<APVTSParameterFloat> ("outputGain",     "Output Gain",       -12.0f),
+    std::make_unique<APVTSParameterFloat> ("drive",          "Drive",             1.0f),
+    std::make_unique<APVTSParameterFloat> ("mix",            "Mix",               100.0f),
+    std::make_unique<APVTSParameterChoice>("distortionType", "Distortion Type",   0),
+    std::make_unique<APVTSParameterInt>   ("bitcrushBit",    "Bit",               16),
+    std::make_unique<APVTSParameterBool>  ("bitcrushOn",     "Bitcrusher",        false),
 };
 
 class ConanAudioProcessor  : 
@@ -89,7 +92,7 @@ private:
 
     MultibandDistortion distortion;
 
-    size_t oversampleFactor = 4;
+    size_t oversampleFactor = 2;
     dsp::Oversampling<float> oversampling{ 2, oversampleFactor, juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, false};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConanAudioProcessor)

@@ -92,7 +92,7 @@ struct APVTSParameterChoice : public IAPVTSParameter
     }
 
     float get() const override {
-        return paramPointer->getCurrentChoiceName().getFloatValue();
+        return static_cast<float>(paramPointer->getIndex());
     }
 };
 

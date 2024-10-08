@@ -120,6 +120,7 @@ void ConanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
 void ConanAudioProcessor::updateDSP()
 {
+    DBG(apvtsParameters[ParameterNames::TYPE]->get());
     for (auto& param : apvtsParameters) {
         distortionParameters.set(param->id.getParamID().toStdString(), param->get());
     }
@@ -257,13 +258,25 @@ juce::AudioProcessorValueTreeState::ParameterLayout ConanAudioProcessor::createP
         apvtsParameters[ParameterNames::MIX]->getDefault()
     ));
     
-    layout.add(std::make_unique <juce::AudioParameterInt>(
+    layout.add(std::make_unique <juce::AudioParameterChoice>(
         apvtsParameters[ParameterNames::TYPE]->id,
         apvtsParameters[ParameterNames::TYPE]->displayValue,
-        0, 3, 
+        StringArray{"Hard Clip", "Sigma", "Square", "Sine Fold"},
         apvtsParameters[ParameterNames::TYPE]->getDefault()
     ));
 
+    layout.add(std::make_unique <juce::AudioParameterInt>(
+        apvtsParameters[ParameterNames::BITCRUSH_BIT]->id,
+        apvtsParameters[ParameterNames::BITCRUSH_BIT]->displayValue,
+        1, 16,
+        apvtsParameters[ParameterNames::BITCRUSH_BIT]->getDefault()
+    ));
+
+    layout.add(std::make_unique <juce::AudioParameterBool>(
+        apvtsParameters[ParameterNames::BITCRUSH_ON]->id,
+        apvtsParameters[ParameterNames::BITCRUSH_ON]->displayValue,
+        apvtsParameters[ParameterNames::BITCRUSH_ON]->getDefault()
+    ));
     return layout;
 }
 

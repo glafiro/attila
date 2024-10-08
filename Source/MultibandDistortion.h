@@ -30,6 +30,8 @@ class MultibandDistortion
 	FilteredParameter outputGain{};
 	FilteredParameter drive{};
 	FilteredParameter mix{};
+	int bitcrushBit{};
+	bool bitcrushOn{};
 	int type{ 2 };
 
 public:
@@ -53,6 +55,8 @@ public:
 		drive.update(params["drive"]);
 		mix.update(params["mix"] * 0.01f);
 		type = static_cast<int>(params["distortionType"]);
+		bitcrushBit = static_cast<int>(params["bitcrushBit"]);
+		bitcrushOn = static_cast<bool>(params["bitcrushOn"]);
 	}
 
 	void processBlock(float* const* inputBuffer, int numChannels, int numSamples) {
@@ -85,6 +89,10 @@ public:
 					break;
 				}
 
+				if (bitcrushOn) {
+					output = bitcrush(output, bitcrushBit);
+				}
+
 				float dry = 1.0f - currentMix;
 				inputBuffer[ch][s] = (sample * dry + limit(output) * currentMix) * currentOutputGain;
 			}
@@ -113,6 +121,12 @@ private:
 	float sineFoldover1(float sample, float drive) {
 		sample *= drive;
 		return std::sin(sample);
+	}
+
+	float bitcrush(float sample, int bit) {
+
+		float QL = 2.0 / (pow(2.0, bit) - 1.0);
+		return QL * static_cast<int>(sample / QL);
 	}
 
 	float limit(float sample) {
