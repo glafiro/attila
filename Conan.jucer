@@ -6,6 +6,12 @@
               pluginVST3Category="Distortion,Fx">
   <MAINGROUP id="P02Tfp" name="Conan">
     <GROUP id="{E0B5D8C0-8ACF-026C-879F-C7C12E8769CF}" name="Source">
+      <FILE id="my0iq6" name="FilteredParameter.cpp" compile="1" resource="0"
+            file="Source/FilteredParameter.cpp"/>
+      <FILE id="AFyDq6" name="FilteredParameter.h" compile="0" resource="0"
+            file="Source/FilteredParameter.h"/>
+      <FILE id="UwhsGK" name="APVTSParameter.h" compile="0" resource="0"
+            file="Source/APVTSParameter.h"/>
       <FILE id="H0Xruc" name="Utils.h" compile="0" resource="0" file="Source/Utils.h"/>
       <FILE id="p7101F" name="PresetManager.h" compile="0" resource="0" file="Source/PresetManager.h"/>
       <FILE id="AUjDeK" name="MultibandDistortion.cpp" compile="1" resource="0"
@@ -19,8 +25,9 @@
       <FILE id="OqtwFp" name="GuiComponents.h" compile="0" resource="0" file="Source/GuiComponents.h"/>
       <FILE id="rcKeE5" name="Filters.cpp" compile="1" resource="0" file="Source/Filters.cpp"/>
       <FILE id="dXLTYe" name="Filters.h" compile="0" resource="0" file="Source/Filters.h"/>
-      <FILE id="fcDSvX" name="Parameters.cpp" compile="1" resource="0" file="Source/Parameters.cpp"/>
-      <FILE id="euhNgf" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
+      <FILE id="fcDSvX" name="DSPParameters.cpp" compile="1" resource="0"
+            file="Source/DSPParameters.cpp"/>
+      <FILE id="euhNgf" name="DSPParameters.h" compile="0" resource="0" file="Source/DSPParameters.h"/>
       <FILE id="IqqeY0" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="uYQbQ4" name="PluginProcessor.h" compile="0" resource="0"

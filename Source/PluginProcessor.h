@@ -1,18 +1,19 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <JuceHeader.h>
 
-//==============================================================================
-/**
-*/
+#include <vector>
+#include <array>
+#include <unordered_map>
+using std::vector;
+using std::array;
+using std::unordered_map;
+
+#include "DSPParameters.h"
+#include "MultibandDistortion.h"
+#include "Utils.h"
+#include "APVTSParameter.h"
+
 class ConanAudioProcessor  : public juce::AudioProcessor
 {
 public:

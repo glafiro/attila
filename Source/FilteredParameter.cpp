@@ -1,11 +1,11 @@
 /*
   ==============================================================================
 
-    DSPParameter.h
-    Created: 8 Oct 2024 10:42:46am
+    FilteredParameter.cpp
+    Created: 8 Oct 2024 10:57:04am
     Author:  dglaf
 
   ==============================================================================
 */
 
-#pragma once
+#include "FilteredParameter.h"
