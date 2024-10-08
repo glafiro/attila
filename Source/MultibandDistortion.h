@@ -19,8 +19,6 @@ using std::array;
 
 #define NOISE_THRESHOLD 0.01f
 
-#define LOW_PASS_CUTOFF	5000.0f
-
 enum DistortionType { HARD, SIGMA, SQUARE, SINE };
 
 class MultibandDistortion
@@ -29,11 +27,11 @@ class MultibandDistortion
 	float blockSize{ 0.0f };
 	float nChannels{ 1.0f };
 
-	float inputGain{ 1.0f };
-	float outputGain{ 1.0f };
-	float drive{ 1.0f };
-	float mix{ 1.0f };
-	int   type{ 2 };
+	FilteredParameter inputGain{};
+	FilteredParameter outputGain{};
+	FilteredParameter drive{};
+	FilteredParameter mix{};
+	int type{ 2 };
 
 public:
 
@@ -42,48 +40,56 @@ public:
 		blockSize = params["blockSize"];
 		nChannels = params["nChannels"];
 
+		inputGain.prepare(sampleRate);
+		outputGain.prepare(sampleRate);
+		drive.prepare(sampleRate);
+		mix.prepare(sampleRate);
+
 		update(params);
 	}
 
 	void update(DSPParameters<float>& params) {
-		inputGain = dbToLinear(params["inputGain"]);
-		outputGain = dbToLinear(params["outputGain"]);
-		drive = params["drive"];
-		mix = params["mix"] * 0.01;
+		inputGain.update(dbToLinear(params["inputGain"]));
+		outputGain.update(dbToLinear(params["outputGain"]));
+		drive.update(params["drive"]);
+		mix.update(params["mix"] * 0.01f);
 		type = static_cast<int>(params["distortionType"]);
 	}
 
-
 	void processBlock(float* const* inputBuffer, int numChannels, int numSamples) {
+
 		for (int ch = 0; ch < numChannels; ++ch) {
 			for (auto s = 0; s < numSamples; ++s) {
 				auto sample = inputBuffer[ch][s];
 
 				float output;
 
+				float currentInputGain = inputGain.next();
+				float currentOutputGain = outputGain.next();
+				float currentDrive = drive.next();
+
 				switch (type) {
 				case(DistortionType::HARD):
-					output = hardClip(sample * inputGain, drive);
+					output = hardClip(sample * currentInputGain, currentDrive);
 					break;
 				case(DistortionType::SIGMA):
-					output = sigmaClip(sample * inputGain, drive);
+					output = sigmaClip(sample * currentInputGain, currentDrive);
 					break;
 				case(DistortionType::SQUARE):
-					output = squareClip(sample * inputGain);
+					output = squareClip(sample * currentInputGain);
 					break;
 				case(DistortionType::SINE):
-					output = sineFoldover1(sample * inputGain, drive);
+					output = sineFoldover1(sample * currentInputGain, currentDrive);
 					break;
 				default:
 					output = sample;
 					break;
 				}
 
-				inputBuffer[ch][s] = limit(output) * outputGain;
+				float dry = 1.0f - mix.next();
+				inputBuffer[ch][s] = limit(output) * currentOutputGain;
 			}
-
 		}
-
 	}
 
 private:
