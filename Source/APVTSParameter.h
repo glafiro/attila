@@ -21,7 +21,7 @@ struct IAPVTSParameter
 
 struct APVTSParameterFloat : public IAPVTSParameter
 {
-    juce::AudioParameterFloat* paramPointer;
+    juce::AudioParameterFloat* paramPointer = nullptr;
 
     APVTSParameterFloat(const juce::String& stringID = "", const juce::String& val = "", float def = 0.0f)
         : IAPVTSParameter(stringID, val, def)
@@ -41,7 +41,7 @@ struct APVTSParameterFloat : public IAPVTSParameter
 
 struct APVTSParameterInt : public IAPVTSParameter
 {
-    juce::AudioParameterInt* paramPointer;
+    juce::AudioParameterInt* paramPointer = nullptr;
 
     APVTSParameterInt(const juce::String& stringID, const juce::String& val, float def)
         : IAPVTSParameter(stringID, val, def)
@@ -60,7 +60,7 @@ struct APVTSParameterInt : public IAPVTSParameter
 
 struct APVTSParameterBool : public IAPVTSParameter
 {
-    juce::AudioParameterBool* paramPointer;
+    juce::AudioParameterBool* paramPointer = nullptr;
 
     APVTSParameterBool(const juce::String& stringID, const juce::String& val, float def)
         : IAPVTSParameter(stringID, val, def)
@@ -79,7 +79,7 @@ struct APVTSParameterBool : public IAPVTSParameter
 
 struct APVTSParameterChoice : public IAPVTSParameter
 {
-    juce::AudioParameterChoice* paramPointer;
+    juce::AudioParameterChoice* paramPointer = nullptr;
 
     APVTSParameterChoice(const juce::String& stringID, const juce::String& val, float def)
         : IAPVTSParameter(stringID, val, def)

@@ -12,20 +12,26 @@
 //==============================================================================
 ConanAudioProcessor::ConanAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
+#endif
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    ),
+    apvts(*this, nullptr, "Parameters", createParameterLayout()),
+    distortion()
 #endif
 {
+    apvts.state.addListener(this);
+    for (auto& param : apvtsParameters) {
+        param->castParameter(apvts);
+    }
 }
-
 ConanAudioProcessor::~ConanAudioProcessor()
 {
+    apvts.state.removeListener(this);
 }
 
 //==============================================================================
@@ -93,8 +99,26 @@ void ConanAudioProcessor::changeProgramName (int index, const juce::String& newN
 //==============================================================================
 void ConanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    int nChannels = getTotalNumInputChannels();
+
+    distortionParameters.set("sampleRate", sampleRate);
+    distortionParameters.set("blockSize", samplesPerBlock);
+    distortionParameters.set("nChannels", nChannels);
+
+    for (auto& param : apvtsParameters) {
+        distortionParameters.set(param->id.getParamID().toStdString(), param->getDefault());
+    }
+
+    distortion.prepare(distortionParameters);
+}
+
+void ConanAudioProcessor::updateDSP()
+{
+    for (auto& param : apvtsParameters) {
+        distortionParameters.set(param->id.getParamID().toStdString(), param->get());
+    }
+
+    distortion.update(distortionParameters);
 }
 
 void ConanAudioProcessor::releaseResources()
@@ -135,27 +159,24 @@ void ConanAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+    bool expected = true;
 
-        // ..do something to the data...
+    if (isNonRealtime() || parametersChanged.compare_exchange_strong(expected, false)) {
+        updateDSP();
     }
+
+    float* outputBuffers[2] = { nullptr, nullptr };
+    outputBuffers[0] = buffer.getWritePointer(0);
+    if (totalNumOutputChannels > 1) outputBuffers[1] = buffer.getWritePointer(1);
+
+    distortion.processBlock(
+        outputBuffers,
+        buffer.getNumChannels(),
+        buffer.getNumSamples()
+    );
 }
 
 //==============================================================================
@@ -166,22 +187,25 @@ bool ConanAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ConanAudioProcessor::createEditor()
 {
-    return new ConanAudioProcessorEditor (*this);
+    //return new ConanAudioProcessorEditor (*this);
+    return new GenericAudioProcessorEditor(*this);
 }
 
-//==============================================================================
-void ConanAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+
+void ConanAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+//    copyXmlToBinary(*apvts.copyState().createXml(), destData);
 }
 
-void ConanAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void ConanAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    //std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+    //if (xml.get() != nullptr && xml->hasTagName(apvts.state.getType())) {
+    //    apvts.replaceState(juce::ValueTree::fromXml(*xml));
+    //    parametersChanged.store(true);
+    //}
 }
+
 
 //==============================================================================
 // This creates new instances of the plugin..
@@ -189,3 +213,46 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new ConanAudioProcessor();
 }
+
+juce::AudioProcessorValueTreeState::ParameterLayout ConanAudioProcessor::createParameterLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+    layout.add(std::make_unique <juce::AudioParameterFloat>(
+        apvtsParameters[ParameterNames::INPUT_GAIN]->id,
+        apvtsParameters[ParameterNames::INPUT_GAIN]->displayValue,
+        juce::NormalisableRange<float>{ MIN_DB, MAX_DB, 1.0f },
+        apvtsParameters[ParameterNames::INPUT_GAIN]->getDefault()
+    ));
+    
+    layout.add(std::make_unique <juce::AudioParameterFloat>(
+        apvtsParameters[ParameterNames::OUTPUT_GAIN]->id,
+        apvtsParameters[ParameterNames::OUTPUT_GAIN]->displayValue,
+        juce::NormalisableRange<float>{ MIN_DB, MAX_DB, 1.0f },
+        apvtsParameters[ParameterNames::OUTPUT_GAIN]->getDefault()
+    ));    
+    
+    layout.add(std::make_unique <juce::AudioParameterFloat>(
+        apvtsParameters[ParameterNames::DRIVE]->id,
+        apvtsParameters[ParameterNames::DRIVE]->displayValue,
+        juce::NormalisableRange<float>{ 1.0f, 10.0f, 0.01f },
+        apvtsParameters[ParameterNames::DRIVE]->getDefault()
+    ));    
+    
+    layout.add(std::make_unique <juce::AudioParameterFloat>(
+        apvtsParameters[ParameterNames::MIX]->id,
+        apvtsParameters[ParameterNames::MIX]->displayValue,
+        juce::NormalisableRange<float>{ 0.0f, 100.0f, 0.01f },
+        apvtsParameters[ParameterNames::MIX]->getDefault()
+    ));
+    
+    layout.add(std::make_unique <juce::AudioParameterInt>(
+        apvtsParameters[ParameterNames::TYPE]->id,
+        apvtsParameters[ParameterNames::TYPE]->displayValue,
+        0, 3, 
+        apvtsParameters[ParameterNames::TYPE]->getDefault()
+    ));
+
+    return layout;
+}
+

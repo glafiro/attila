@@ -57,7 +57,8 @@
   <EXPORTFORMATS>
     <VS2022 targetFolder="Builds/VisualStudio2022">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="Conan"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="Conan" enablePluginBinaryCopyStep="1"
+                       vst3BinaryLocation="C:\Users\dglaf\Documents\VSTPlugins"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="Conan"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
