@@ -14,11 +14,11 @@
 //==============================================================================
 /**
 */
-class ConanAudioProcessorEditor  : public juce::AudioProcessorEditor
+class AttilaAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
-    ConanAudioProcessorEditor (ConanAudioProcessor&);
-    ~ConanAudioProcessorEditor() override;
+    AttilaAudioProcessorEditor (AttilaAudioProcessor&);
+    ~AttilaAudioProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -27,7 +27,7 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    ConanAudioProcessor& audioProcessor;
+    AttilaAudioProcessor& audioProcessor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConanAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AttilaAudioProcessorEditor)
 };

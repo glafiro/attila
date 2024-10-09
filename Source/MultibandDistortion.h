@@ -17,7 +17,7 @@ float msToCoefficient(float sampleRate, float length) {
 
 #define NOISE_THRESHOLD 0.01f
 
-enum DistortionType { HARD, SIGMA, SQUARE, SINE };
+enum DistortionType { HARD, TANH, SIGMOID, FUZZ_EXP, SINE };
 
 
 class MultibandDistortion
@@ -30,8 +30,11 @@ class MultibandDistortion
 	FilteredParameter outputGain{};
 	FilteredParameter drive{};
 	FilteredParameter mix{};
+	
 	int bitcrushBit{};
 	bool bitcrushOn{};
+	
+	FilteredParameter sineFreq{};
 	int type{ 2 };
 
 public:
@@ -52,11 +55,12 @@ public:
 	void update(DSPParameters<float>& params) {
 		inputGain.update(dbToLinear(params["inputGain"]));
 		outputGain.update(dbToLinear(params["outputGain"]));
-		drive.update(params["drive"]);
+		drive.update(dbToLinear(params["drive"]));
 		mix.update(params["mix"] * 0.01f);
 		type = static_cast<int>(params["distortionType"]);
 		bitcrushBit = static_cast<int>(params["bitcrushBit"]);
 		bitcrushOn = static_cast<bool>(params["bitcrushOn"]);
+		sineFreq.update(params["sineFreq"]);
 	}
 
 	void processBlock(float* const* inputBuffer, int numChannels, int numSamples) {
@@ -75,14 +79,17 @@ public:
 				case(DistortionType::HARD):
 					output = hardClip(sample * currentInputGain, currentDrive);
 					break;
-				case(DistortionType::SIGMA):
-					output = sigmaClip(sample * currentInputGain, currentDrive);
+				case(DistortionType::TANH):
+					output = tanhClip(sample * currentInputGain, currentDrive);
 					break;
-				case(DistortionType::SQUARE):
-					output = squareClip(sample * currentInputGain);
+				case(DistortionType::SIGMOID):
+					output = sigmoidClip(sample * currentInputGain, currentDrive);
+					break;
+				case(DistortionType::FUZZ_EXP):
+					output = fuzzExponential(sample * currentInputGain, currentDrive);
 					break;
 				case(DistortionType::SINE):
-					output = sineFoldover1(sample * currentInputGain, currentDrive);
+					output = sineFoldover1(sample * currentInputGain, currentDrive, sineFreq.next());
 					break;
 				default:
 					output = sample;
@@ -107,20 +114,23 @@ private:
 		return sample;
 	}
 
-	float sigmaClip(float sample, float drive) {
+	float tanhClip(float sample, float drive) {
 		return std::tanh(sample * drive);
 	}
 
-	float squareClip(float sample) {
-		if (std::abs(sample) > NOISE_THRESHOLD) {
-			return sample > 0.0f ? 1.0f : -1.0f;
-		}
-		return sample;
+	float sigmoidClip(float sample, float drive) {
+		return 2.0f * (1.0 / (1.0 + exp(-drive * sample))) - 1.0f;
 	}
 
-	float sineFoldover1(float sample, float drive) {
+	float fuzzExponential(float sample, float drive) {
+		float sign = sample >= 0.0f ? 1.0f : -1.0f;
+		return sign * (1.0f - exp(-abs(drive * sample))) / (1.0 - exp(-drive));
+	}
+
+
+	float sineFoldover1(float sample, float drive, float freq) {
 		sample *= drive;
-		return std::sin(sample);
+		return std::sin(sample * freq);
 	}
 
 	float bitcrush(float sample, int bit) {

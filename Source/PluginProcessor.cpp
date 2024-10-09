@@ -10,7 +10,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-ConanAudioProcessor::ConanAudioProcessor()
+AttilaAudioProcessor::AttilaAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
 #if ! JucePlugin_IsMidiEffect
@@ -29,18 +29,18 @@ ConanAudioProcessor::ConanAudioProcessor()
         param->castParameter(apvts);
     }
 }
-ConanAudioProcessor::~ConanAudioProcessor()
+AttilaAudioProcessor::~AttilaAudioProcessor()
 {
     apvts.state.removeListener(this);
 }
 
 //==============================================================================
-const juce::String ConanAudioProcessor::getName() const
+const juce::String AttilaAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool ConanAudioProcessor::acceptsMidi() const
+bool AttilaAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -49,7 +49,7 @@ bool ConanAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool ConanAudioProcessor::producesMidi() const
+bool AttilaAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -58,7 +58,7 @@ bool ConanAudioProcessor::producesMidi() const
    #endif
 }
 
-bool ConanAudioProcessor::isMidiEffect() const
+bool AttilaAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -67,37 +67,37 @@ bool ConanAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double ConanAudioProcessor::getTailLengthSeconds() const
+double AttilaAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int ConanAudioProcessor::getNumPrograms()
+int AttilaAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int ConanAudioProcessor::getCurrentProgram()
+int AttilaAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void ConanAudioProcessor::setCurrentProgram (int index)
+void AttilaAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const juce::String ConanAudioProcessor::getProgramName (int index)
+const juce::String AttilaAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void ConanAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void AttilaAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void ConanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void AttilaAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     int nChannels = getTotalNumInputChannels();
 
@@ -118,7 +118,7 @@ void ConanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     distortion.prepare(distortionParameters);
 }
 
-void ConanAudioProcessor::updateDSP()
+void AttilaAudioProcessor::updateDSP()
 {
     DBG(apvtsParameters[ParameterNames::TYPE]->get());
     for (auto& param : apvtsParameters) {
@@ -128,13 +128,13 @@ void ConanAudioProcessor::updateDSP()
     distortion.update(distortionParameters);
 }
 
-void ConanAudioProcessor::releaseResources()
+void AttilaAudioProcessor::releaseResources()
 {
     oversampling.reset();  // Make sure you reset oversampling
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool ConanAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool AttilaAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
@@ -159,7 +159,7 @@ bool ConanAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 }
 #endif
 
-void ConanAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void AttilaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -192,24 +192,24 @@ void ConanAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 }
 
 //==============================================================================
-bool ConanAudioProcessor::hasEditor() const
+bool AttilaAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* ConanAudioProcessor::createEditor()
+juce::AudioProcessorEditor* AttilaAudioProcessor::createEditor()
 {
-    //return new ConanAudioProcessorEditor (*this);
+    //return new AttilaAudioProcessorEditor (*this);
     return new GenericAudioProcessorEditor(*this);
 }
 
 
-void ConanAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
+void AttilaAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
 //    copyXmlToBinary(*apvts.copyState().createXml(), destData);
 }
 
-void ConanAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
+void AttilaAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     //std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
     //if (xml.get() != nullptr && xml->hasTagName(apvts.state.getType())) {
@@ -223,10 +223,10 @@ void ConanAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new ConanAudioProcessor();
+    return new AttilaAudioProcessor();
 }
 
-juce::AudioProcessorValueTreeState::ParameterLayout ConanAudioProcessor::createParameterLayout()
+juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::createParameterLayout()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
@@ -247,7 +247,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ConanAudioProcessor::createP
     layout.add(std::make_unique <juce::AudioParameterFloat>(
         apvtsParameters[ParameterNames::DRIVE]->id,
         apvtsParameters[ParameterNames::DRIVE]->displayValue,
-        juce::NormalisableRange<float>{ 1.0f, 30.0f, 0.01f },
+        juce::NormalisableRange<float>{ -36.0f, 36.0f, 0.01f },
         apvtsParameters[ParameterNames::DRIVE]->getDefault()
     ));    
     
@@ -261,7 +261,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ConanAudioProcessor::createP
     layout.add(std::make_unique <juce::AudioParameterChoice>(
         apvtsParameters[ParameterNames::TYPE]->id,
         apvtsParameters[ParameterNames::TYPE]->displayValue,
-        StringArray{"Hard Clip", "Sigma", "Square", "Sine Fold"},
+        StringArray{"Hard Clip", "Tanh", "Sigmoid", "Fuzz Exponential", "Sine Fold"},
         apvtsParameters[ParameterNames::TYPE]->getDefault()
     ));
 
@@ -276,6 +276,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout ConanAudioProcessor::createP
         apvtsParameters[ParameterNames::BITCRUSH_ON]->id,
         apvtsParameters[ParameterNames::BITCRUSH_ON]->displayValue,
         apvtsParameters[ParameterNames::BITCRUSH_ON]->getDefault()
+    ));
+
+
+    layout.add(std::make_unique <juce::AudioParameterFloat>(
+        apvtsParameters[ParameterNames::SINE_FREQ]->id,
+        apvtsParameters[ParameterNames::SINE_FREQ]->displayValue,
+        juce::NormalisableRange<float>{ 0.1f, 2.0f, 0.0001f },
+        apvtsParameters[ParameterNames::SINE_FREQ]->getDefault()
     ));
     return layout;
 }
