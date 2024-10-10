@@ -256,13 +256,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::create
         apvtsParameters[ParameterNames::BIT_1]->getDefault()
     ));
 
-    layout.add(std::make_unique <juce::AudioParameterFloat>(
-        apvtsParameters[ParameterNames::SHAPE_1]->id,
-        apvtsParameters[ParameterNames::SHAPE_1]->displayValue,
-        juce::NormalisableRange<float>{ 0.0f, 100.0f, 0.01f },
-        apvtsParameters[ParameterNames::SHAPE_1]->getDefault()
-    ));
-
     layout.add(std::make_unique <juce::AudioParameterBool>(
         apvtsParameters[ParameterNames::BYPASS_1]->id,
         apvtsParameters[ParameterNames::BYPASS_1]->displayValue,
@@ -305,13 +298,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::create
     ));
 
     layout.add(std::make_unique <juce::AudioParameterFloat>(
-        apvtsParameters[ParameterNames::SHAPE_2]->id,
-        apvtsParameters[ParameterNames::SHAPE_2]->displayValue,
-        juce::NormalisableRange<float>{ 0.0f, 100.0f, 0.01f },
-        apvtsParameters[ParameterNames::SHAPE_2]->getDefault()
-    ));
-
-    layout.add(std::make_unique <juce::AudioParameterFloat>(
         apvtsParameters[ParameterNames::INPUT_GAIN_3]->id,
         apvtsParameters[ParameterNames::INPUT_GAIN_3]->displayValue,
         juce::NormalisableRange<float>{ MIN_DB, MAX_DB, 1.0f },
@@ -351,14 +337,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::create
         1, 32,
         apvtsParameters[ParameterNames::BIT_3]->getDefault()
     ));
-
-    layout.add(std::make_unique <juce::AudioParameterFloat>(
-        apvtsParameters[ParameterNames::SHAPE_3]->id,
-        apvtsParameters[ParameterNames::SHAPE_3]->displayValue,
-        juce::NormalisableRange<float>{ 0.0f, 100.0f, 0.01f },
-        apvtsParameters[ParameterNames::SHAPE_3]->getDefault()
-    ));
-
 
     layout.add(std::make_unique <juce::AudioParameterBool>(
         apvtsParameters[ParameterNames::BYPASS_3]->id,

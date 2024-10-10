@@ -6,6 +6,12 @@
 #define M_PI 3.14159265358979323846
 #include <cmath>
 
+// Utility functions
+template<typename T>
+T lengthToSamples(T sr, T n) noexcept {
+    return sr * n * static_cast<T>(0.001);
+}
+
 class OnePoleFilter
 {
 public:
@@ -74,6 +80,46 @@ public:
         return value;
     }
 
+};
+
+
+#define SILENCE 0.000001f
+
+class SmoothLogParameter
+{
+    float currentGain, targetGain, multiplier;
+    float attackTime, releaseTime, fadeSize{ 1.0f };
+    float sampleRate{ DEFAULT_SR };
+
+public:
+    SmoothLogParameter(float atk = 150.0f, float rls = 150.0f) : attackTime(atk), releaseTime(rls), currentGain(SILENCE), targetGain(SILENCE), multiplier(1.0) {}
+
+    void prepare(float sr, float v) {
+        sampleRate = sr;
+        currentGain = v;
+        setValue(v);
+    }
+
+    void setValue(float v) {
+        targetGain = v + SILENCE;
+        if (targetGain < currentGain) fadeSize = lengthToSamples(releaseTime, sampleRate);
+        else if (targetGain > currentGain) fadeSize = lengthToSamples(attackTime, sampleRate);
+        multiplier = std::pow(targetGain / currentGain, 1.0f / fadeSize);
+    }
+
+    float next() {
+        if (std::abs(currentGain - targetGain) > 0.0001f) {
+            currentGain *= multiplier;
+            if ((multiplier > 1.0f && currentGain >= targetGain) || (multiplier < 1.0f && currentGain <= targetGain)) {
+                currentGain = targetGain;
+            }
+        }
+        return currentGain;
+    }
+
+    float read() {
+        return currentGain;
+    }
 };
 
 #undef DEFAULT_SR

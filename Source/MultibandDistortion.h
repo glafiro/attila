@@ -22,9 +22,7 @@ class Distortion
 	FilteredParameter drive{};
 	FilteredParameter mix{};
 	FilteredParameter knee{};
-	FilteredParameter shape{};
 	int bit{};
-	bool bypass{ false };
 
 public:
 
@@ -38,7 +36,6 @@ public:
 		drive.prepare(sampleRate);
 		mix.prepare(sampleRate);
 		knee.prepare(sampleRate);
-		shape.prepare(sampleRate);
 	}
 
 	void update(DSPParameters<float>& params) {
@@ -47,9 +44,7 @@ public:
 		drive.update(dbToLinear(params["drive"]));
 		knee.update(params["knee"]);
 		bit = static_cast<int>(params["bit"]);
-		shape.update(params["shape"] * 0.01f);
 		mix.update(params["mix"] * 0.01f);
-		bypass = static_cast<bool>(params["bypass"]);
 	}
 
 	void processBlock(float* const* inputBuffer, int numChannels, int numSamples) {
@@ -62,6 +57,7 @@ public:
 	}
 
 	float processSample(float sample) {
+
 		float currentInputGain = inputGain.next();
 		float currentOutputGain = outputGain.next();
 		float currentDrive = drive.next();
@@ -69,20 +65,17 @@ public:
 		float currentKnee = knee.next();
 
 		float output = clip(sample * currentInputGain, currentDrive, currentKnee);
-		output = bitcrush(output, bit, shape.next());
+		output = bitcrush(output, bit);
 
 		return limit(output) * currentOutputGain;
 	}
 
 private:
 
-	float bitcrush(float sample, int bit, float shape) {
-		float shapedSample = copysign(pow(fabs(sample), shape), sample);
-
+	float bitcrush(float sample, int bit) {
 		float QL = 2.0 / (pow(2.0, bit) - 1.0);
-		float quantized =  QL * static_cast<int>(shapedSample / QL);
+		return QL * static_cast<int>(sample / QL);
 
-		return copysignf(powf(fabs(quantized), 1.0f / shape), quantized);
 	}
 
     // https://www.musicdsp.org/en/latest/Effects/104-variable-hardness-clipping-function.html
@@ -122,6 +115,11 @@ public:
 	FilteredParameter lowMidCut{};
 	FilteredParameter midHighCut{};
 
+	SmoothLogParameter lowEnabled;
+	SmoothLogParameter midEnabled;
+	SmoothLogParameter highEnabled;
+	SmoothLogParameter allEnabled;
+
 	void prepare(DSPParameters<float>& params) {
 		sampleRate = params["sampleRate"];
 		blockSize = params["blockSize"];
@@ -146,7 +144,6 @@ public:
 		lowParams.set("drive", params["drive1"]);
 		lowParams.set("knee", params["knee1"]);
 		lowParams.set("bit", params["bit1"]);
-		lowParams.set("shape", params["shape1"]);
 		lowParams.set("bypass", params["bypass1"]);
 		lowDist.update(lowParams);
 		midParams.set("inputGain", params["inputGain2"]);
@@ -154,7 +151,6 @@ public:
 		midParams.set("drive", params["drive2"]);
 		midParams.set("knee", params["knee2"]);
 		midParams.set("bit", params["bit2"]);
-		midParams.set("shape", params["shape2"]);
 		midParams.set("bypass", params["bypass2"]);
 		midDist.update(midParams);
 		highParams.set("inputGain", params["inputGain3"]);
@@ -162,11 +158,14 @@ public:
 		highParams.set("drive", params["drive3"]);
 		highParams.set("knee", params["knee3"]);
 		highParams.set("bit", params["bit3"]);
-		highParams.set("shape", params["shape3"]);
 		highParams.set("bypass", params["bypass3"]);
 		highDist.update(highParams);
 
 		// Global 
+		lowEnabled.setValue(1.0f - params["bypass1"]);
+		midEnabled.setValue(1.0f - params["bypass2"]);
+		highEnabled.setValue(1.0f - params["bypass3"]);
+		allEnabled.setValue(1.0f - params["bypass"]);
 		inputGain.update(dbToLinear(params["inputGain"]));
 		outputGain.update(dbToLinear(params["outputGain"]));
 		bypass = static_cast<bool>(params["bypass"]);
@@ -189,14 +188,16 @@ public:
 				lowMidFilter.processSample(ch, sample, lowBandFiltered, midBandFiltered);
 				midHighFilter.processSample(ch, midBandFiltered, midBandFiltered, highBandFiltered);
 
-				lowBandDistorted = lowDist.processSample(lowBandFiltered);
-				midBandDistorted = midDist.processSample(midBandFiltered);
-				highBandDistorted = highDist.processSample(highBandFiltered);
+				lowBandDistorted = lowDist.processSample(lowBandFiltered) * lowEnabled.next();
+				midBandDistorted = midDist.processSample(midBandFiltered) * midEnabled.next();
+				highBandDistorted = highDist.processSample(highBandFiltered) * highEnabled.next();
 
-				float currentMix = mix.next();
-				float dry = 1.0f - currentMix;
-				inputBuffer[ch][s] = (sample * dry + currentMix * (lowBandDistorted + midBandDistorted + highBandDistorted)) * outputGain.next();
+				float wet = mix.next() * (lowBandDistorted + midBandDistorted + highBandDistorted);
+				float dry = (1.0f - mix.read()) * sample;
+				float amplitude = allEnabled.next();
 
+				inputBuffer[ch][s] =
+					sample * (1.0f - amplitude) + ((wet + dry) * amplitude * outputGain.next());
 			}
 		}
 	}
