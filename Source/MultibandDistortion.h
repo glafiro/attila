@@ -17,9 +17,6 @@ float msToCoefficient(float sampleRate, float length) {
 
 #define NOISE_THRESHOLD 0.01f
 
-enum DistortionType { HARD, TANH, SIGMOID, FUZZ_EXP, SINE };
-
-
 class MultibandDistortion
 {
 	float sampleRate{ 44100.0f };
@@ -30,12 +27,10 @@ class MultibandDistortion
 	FilteredParameter outputGain{};
 	FilteredParameter drive{};
 	FilteredParameter mix{};
+	FilteredParameter knee{};
+	FilteredParameter bitcrushShape{};
 	
 	int bitcrushBit{};
-	bool bitcrushOn{};
-	
-	FilteredParameter sineFreq{};
-	int type{ 2 };
 
 public:
 
@@ -48,6 +43,8 @@ public:
 		outputGain.prepare(sampleRate);
 		drive.prepare(sampleRate);
 		mix.prepare(sampleRate);
+		knee.prepare(sampleRate);
+		bitcrushShape.prepare(sampleRate);
 
 		update(params);
 	}
@@ -57,10 +54,9 @@ public:
 		outputGain.update(dbToLinear(params["outputGain"]));
 		drive.update(dbToLinear(params["drive"]));
 		mix.update(params["mix"] * 0.01f);
-		type = static_cast<int>(params["distortionType"]);
 		bitcrushBit = static_cast<int>(params["bitcrushBit"]);
-		bitcrushOn = static_cast<bool>(params["bitcrushOn"]);
-		sineFreq.update(params["sineFreq"]);
+		knee.update(params["knee"]);
+		bitcrushShape.update(params["bitcrushShape"] * 0.01f);
 	}
 
 	void processBlock(float* const* inputBuffer, int numChannels, int numSamples) {
@@ -72,33 +68,11 @@ public:
 				float currentOutputGain = outputGain.next();
 				float currentDrive = drive.next();
 				float currentMix = mix.next();
+				float currentKnee = knee.next();
 
-				float output;
+				float output = clip(sample * currentInputGain, currentDrive, currentKnee);
 
-				switch (type) {
-				case(DistortionType::HARD):
-					output = hardClip(sample * currentInputGain, currentDrive);
-					break;
-				case(DistortionType::TANH):
-					output = tanhClip(sample * currentInputGain, currentDrive);
-					break;
-				case(DistortionType::SIGMOID):
-					output = sigmoidClip(sample * currentInputGain, currentDrive);
-					break;
-				case(DistortionType::FUZZ_EXP):
-					output = fuzzExponential(sample * currentInputGain, currentDrive);
-					break;
-				case(DistortionType::SINE):
-					output = sineFoldover1(sample * currentInputGain, currentDrive, sineFreq.next());
-					break;
-				default:
-					output = sample;
-					break;
-				}
-
-				if (bitcrushOn) {
-					output = bitcrush(output, bitcrushBit);
-				}
+				output = bitcrush(output, bitcrushBit, bitcrushShape.next());
 
 				float dry = 1.0f - currentMix;
 				inputBuffer[ch][s] = (sample * dry + limit(output) * currentMix) * currentOutputGain;
@@ -107,36 +81,20 @@ public:
 	}
 
 private:
-	float hardClip(float sample, float drive) {
-		sample *= drive;
-		if (sample > 1.0f)  return 1.0f;
-		if (sample < -1.0f) return -1.0f;
-		return sample;
-	}
 
-	float tanhClip(float sample, float drive) {
-		return std::tanh(sample * drive);
-	}
-
-	float sigmoidClip(float sample, float drive) {
-		return 2.0f * (1.0 / (1.0 + exp(-drive * sample))) - 1.0f;
-	}
-
-	float fuzzExponential(float sample, float drive) {
-		float sign = sample >= 0.0f ? 1.0f : -1.0f;
-		return sign * (1.0f - exp(-abs(drive * sample))) / (1.0 - exp(-drive));
-	}
-
-
-	float sineFoldover1(float sample, float drive, float freq) {
-		sample *= drive;
-		return std::sin(sample * freq);
-	}
-
-	float bitcrush(float sample, int bit) {
+	float bitcrush(float sample, int bit, float shape) {
+		float shapedSample = copysign(pow(fabs(sample), shape), sample);
 
 		float QL = 2.0 / (pow(2.0, bit) - 1.0);
-		return QL * static_cast<int>(sample / QL);
+		float quantized =  QL * static_cast<int>(shapedSample / QL);
+
+		return copysignf(powf(fabs(quantized), 1.0f / shape), quantized);
+	}
+
+    // https://www.musicdsp.org/en/latest/Effects/104-variable-hardness-clipping-function.html
+	float clip(float input, float drive, float knee) {
+		input *= drive;
+		return sign(input) * pow(fastatan(pow(fabs(input), knee)), (1.0f / knee));
 	}
 
 	float limit(float sample) {

@@ -17,10 +17,12 @@ using std::unordered_map;
 #define MIN_DB  -60.0f
 #define MAX_DB  12.0f
 
-enum ParameterNames{INPUT_GAIN, OUTPUT_GAIN, 
-    DRIVE, MIX, TYPE, 
-    BITCRUSH_BIT, BITCRUSH_ON,
-    SINE_FREQ,
+enum ParameterNames{
+    INPUT_GAIN, OUTPUT_GAIN, 
+    DRIVE, KNEE,
+    BITCRUSH_BIT,
+    BITCRUSH_SHAPE,
+    MIX,
     PARAMETER_COUNT
 };
 
@@ -28,11 +30,10 @@ static std::array<std::unique_ptr<IAPVTSParameter>, ParameterNames::PARAMETER_CO
     std::make_unique<APVTSParameterFloat> ("inputGain",      "Input Gain",        0.0f),
     std::make_unique<APVTSParameterFloat> ("outputGain",     "Output Gain",       -12.0f),
     std::make_unique<APVTSParameterFloat> ("drive",          "Drive",             0.0f),
-    std::make_unique<APVTSParameterFloat> ("mix",            "Mix",               100.0f),
-    std::make_unique<APVTSParameterChoice>("distortionType", "Distortion Type",   0),
+    std::make_unique<APVTSParameterFloat> ("knee",           "Knee",              1.0f),
     std::make_unique<APVTSParameterInt>   ("bitcrushBit",    "Bit",               16),
-    std::make_unique<APVTSParameterBool>  ("bitcrushOn",     "Bitcrusher",        false),
-    std::make_unique<APVTSParameterFloat> ("sineFreq",       "Sine Freq",         1.0f)
+    std::make_unique<APVTSParameterFloat> ("bitcrushShape",  "Shape",             100.0f),
+    std::make_unique<APVTSParameterFloat> ("mix",            "Mix",               100.0f)
 };
 
 class AttilaAudioProcessor  : 

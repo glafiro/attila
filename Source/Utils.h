@@ -80,3 +80,13 @@ private:
     float maxDelta;
 };
 
+float sign(float x) {
+    return x < 0.0f ? -1.0f : 1.0f;
+}
+
+// https://www.musicdsp.org/en/latest/Effects/104-variable-hardness-clipping-function.html
+
+inline float fastatan(float x)
+{
+    return (x / (1.0f + 0.28f * (x * x)));
+}

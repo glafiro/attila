@@ -1,11 +1,3 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -120,7 +112,6 @@ void AttilaAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
 
 void AttilaAudioProcessor::updateDSP()
 {
-    DBG(apvtsParameters[ParameterNames::TYPE]->get());
     for (auto& param : apvtsParameters) {
         distortionParameters.set(param->id.getParamID().toStdString(), param->get());
     }
@@ -250,41 +241,35 @@ juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::create
         juce::NormalisableRange<float>{ -36.0f, 36.0f, 0.01f },
         apvtsParameters[ParameterNames::DRIVE]->getDefault()
     ));    
-    
+
+    layout.add(std::make_unique <juce::AudioParameterFloat>(
+        apvtsParameters[ParameterNames::KNEE]->id,
+        apvtsParameters[ParameterNames::KNEE]->displayValue,
+        juce::NormalisableRange<float>{ 1.0f, 100.0f, 0.001f },
+        apvtsParameters[ParameterNames::KNEE]->getDefault()
+    ));
+
+    layout.add(std::make_unique <juce::AudioParameterInt>(
+        apvtsParameters[ParameterNames::BITCRUSH_BIT]->id,
+        apvtsParameters[ParameterNames::BITCRUSH_BIT]->displayValue,
+        1, 32,
+        apvtsParameters[ParameterNames::BITCRUSH_BIT]->getDefault()
+    ));
+
+    layout.add(std::make_unique <juce::AudioParameterFloat>(
+        apvtsParameters[ParameterNames::BITCRUSH_SHAPE]->id,
+        apvtsParameters[ParameterNames::BITCRUSH_SHAPE]->displayValue,
+        juce::NormalisableRange<float>{ 0.0f, 100.0f, 0.01f },
+        apvtsParameters[ParameterNames::BITCRUSH_SHAPE]->getDefault()
+    ));
+
     layout.add(std::make_unique <juce::AudioParameterFloat>(
         apvtsParameters[ParameterNames::MIX]->id,
         apvtsParameters[ParameterNames::MIX]->displayValue,
         juce::NormalisableRange<float>{ 0.0f, 100.0f, 0.01f },
         apvtsParameters[ParameterNames::MIX]->getDefault()
     ));
-    
-    layout.add(std::make_unique <juce::AudioParameterChoice>(
-        apvtsParameters[ParameterNames::TYPE]->id,
-        apvtsParameters[ParameterNames::TYPE]->displayValue,
-        StringArray{"Hard Clip", "Tanh", "Sigmoid", "Fuzz Exponential", "Sine Fold"},
-        apvtsParameters[ParameterNames::TYPE]->getDefault()
-    ));
 
-    layout.add(std::make_unique <juce::AudioParameterInt>(
-        apvtsParameters[ParameterNames::BITCRUSH_BIT]->id,
-        apvtsParameters[ParameterNames::BITCRUSH_BIT]->displayValue,
-        1, 16,
-        apvtsParameters[ParameterNames::BITCRUSH_BIT]->getDefault()
-    ));
-
-    layout.add(std::make_unique <juce::AudioParameterBool>(
-        apvtsParameters[ParameterNames::BITCRUSH_ON]->id,
-        apvtsParameters[ParameterNames::BITCRUSH_ON]->displayValue,
-        apvtsParameters[ParameterNames::BITCRUSH_ON]->getDefault()
-    ));
-
-
-    layout.add(std::make_unique <juce::AudioParameterFloat>(
-        apvtsParameters[ParameterNames::SINE_FREQ]->id,
-        apvtsParameters[ParameterNames::SINE_FREQ]->displayValue,
-        juce::NormalisableRange<float>{ 0.1f, 2.0f, 0.0001f },
-        apvtsParameters[ParameterNames::SINE_FREQ]->getDefault()
-    ));
     return layout;
 }
 
