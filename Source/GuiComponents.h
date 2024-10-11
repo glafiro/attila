@@ -6,27 +6,27 @@
 class Knob : public Component
 {
 public:
-    juce::Slider slider;
+    Slider slider;
 
     Knob(IAPVTSParameter* param, int w, int h, AudioProcessorValueTreeState& apvts) :
         width(w), height(h), state(apvts)
     {
         
-        slider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-        slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, w, h * 0.186);
+        slider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+        slider.setTextBoxStyle(Slider::TextBoxBelow, false, w, h * 0.186);
         slider.setBounds(0, 0, w, h);
         addAndMakeVisible(slider);
 
-        label.setText(param->displayValue, juce::NotificationType::dontSendNotification);
-        label.setJustificationType(juce::Justification::horizontallyCentred);
-        label.setBorderSize(juce::BorderSize<int>(0));
+        label.setText(param->displayValue, NotificationType::dontSendNotification);
+        label.setJustificationType(Justification::horizontallyCentred);
+        label.setBorderSize(BorderSize<int>(0));
         label.attachToComponent(&slider, false);
         addAndMakeVisible(label);
 
         setSize(w, h + label.getHeight());
         //setLookAndFeel(KnobLookAndFeel::get());
 
-        attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+        attachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(
             state, param->id.getParamID(), slider
         );
     }
@@ -40,25 +40,66 @@ public:
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Knob);
     
-    juce::Label label;
+    Label label;
     String labelText;
     int width, height;
-    juce::AudioProcessorValueTreeState& state;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
+    AudioProcessorValueTreeState& state;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> attachment;
+};
+
+class Switch : public Component
+{
+public:
+    Switch(IAPVTSParameter* param, int w, int h, AudioProcessorValueTreeState& apvts, bool hasLabel=false) :
+        width(w), height(h), state(apvts)
+    {
+        btn.setBounds(0, 0, w, h);
+        addAndMakeVisible(btn);
+
+        if (hasLabel) {
+            label.setText(param->displayValue, NotificationType::dontSendNotification);
+            label.setJustificationType(Justification::horizontallyCentred);
+            label.setBorderSize(BorderSize<int>(0));
+            label.attachToComponent(&btn, false);
+            addAndMakeVisible(label);
+        }
+        else {
+            label.setSize(0, 0);
+        }
+
+        setSize(w + label.getWidth(), h);
+
+        attachment = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(
+            state, param->id.getParamID(), btn
+        );
+    }
+
+    void resized() {
+        auto bounds = getLocalBounds();
+        btn.setBounds(bounds.getX(), bounds.getY(), bounds.getWidth() + label.getWidth(), bounds.getHeight());
+    }
+
+private:
+    ToggleButton btn;
+    Label label;
+    String labelText;
+    int width, height;
+    AudioProcessorValueTreeState& state;
+    std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment> attachment;
 };
 
 
-class PresetMenu : public juce::Component, public juce::Button::Listener, public juce::ComboBox::Listener
+class PresetMenu : public Component, public Button::Listener, public ComboBox::Listener
 {
-    juce::TextButton saveBtn, deleteBtn, nextBtn, prevBtn;
-    juce::ComboBox presetList;
+    TextButton saveBtn, deleteBtn, nextBtn, prevBtn;
+    ComboBox presetList;
     PresetManager presetManager;
-    std::unique_ptr<juce::FileChooser> fileChooser;
+    std::unique_ptr<FileChooser> fileChooser;
 
 public:
     Rectangle<float> area;
     
-    PresetMenu(juce::Rectangle<float> a, PresetManager& pm) : area(a), presetManager(pm) {
+    PresetMenu(Rectangle<float> a, PresetManager& pm) : area(a), presetManager(pm) {
 
         createButton(saveBtn, "SAVE");
         createButton(deleteBtn, " DELETE"); // hackiest hack
@@ -100,14 +141,14 @@ public:
     }
 
 private:
-    void buttonClicked(juce::Button* btn) {
+    void buttonClicked(Button* btn) {
         if (btn == &saveBtn) {
-            fileChooser = std::make_unique<juce::FileChooser>(
+            fileChooser = std::make_unique<FileChooser>(
                 "Preset name:",
                 presetManager.defaultDir,
                 "*." + presetManager.ext
             );
-            fileChooser->launchAsync(juce::FileBrowserComponent::saveMode, [&](const juce::FileChooser& chooser) {
+            fileChooser->launchAsync(FileBrowserComponent::saveMode, [&](const FileChooser& chooser) {
                 const auto result = chooser.getResult();
                 presetManager.savePreset(result.getFileNameWithoutExtension());
                 loadPresetList();
@@ -116,21 +157,21 @@ private:
         }
         if (btn == &nextBtn) {
             const auto idx = presetManager.next();
-            presetList.setSelectedItemIndex(idx, juce::dontSendNotification);
+            presetList.setSelectedItemIndex(idx, dontSendNotification);
         }
         if (btn == &prevBtn) {
             const auto idx = presetManager.prev();
-            presetList.setSelectedItemIndex(idx, juce::dontSendNotification);
+            presetList.setSelectedItemIndex(idx, dontSendNotification);
         }
 
         if (btn == &deleteBtn) {
 
-            juce::NativeMessageBox::showYesNoCancelBox(
-                juce::MessageBoxIconType::QuestionIcon,
+            NativeMessageBox::showYesNoCancelBox(
+                MessageBoxIconType::QuestionIcon,
                 "Delete Confirmation",
                 "Are you sure you want to delete this item?",
                 nullptr,
-                juce::ModalCallbackFunction::create([this](int result) {
+                ModalCallbackFunction::create([this](int result) {
                     if (result == 1) {
                         const auto text = presetManager.getCurrent();
                         presetManager.deletePreset(text);
@@ -141,14 +182,14 @@ private:
         }
     }
 
-    void comboBoxChanged(juce::ComboBox* box) override {
+    void comboBoxChanged(ComboBox* box) override {
 
         if (box == &presetList) {
             presetManager.loadPreset(presetList.getItemText(presetList.getSelectedItemIndex()));
         }
     }
 
-    void createButton(juce::Button& btn, const juce::String& text) {
+    void createButton(Button& btn, const String& text) {
 
         btn.setButtonText(text);
         addAndMakeVisible(btn);
@@ -157,11 +198,11 @@ private:
 
     void loadPresetList() {
 
-        presetList.clear(juce::dontSendNotification);
+        presetList.clear(dontSendNotification);
         const auto allPresets = presetManager.getPresetList();
         const auto currentPreset = presetManager.getCurrent();
         presetList.addItemList(presetManager.getPresetList(), 1);
-        presetList.setSelectedItemIndex(allPresets.indexOf(currentPreset), juce::dontSendNotification);
+        presetList.setSelectedItemIndex(allPresets.indexOf(currentPreset), dontSendNotification);
 
     }
 

@@ -7,8 +7,9 @@
 #define WIDTH 1024.0f
 #define HEIGHT 768.0f
 
-#define KNOB_W 70
-#define KNOB_H 68
+#define KNOB_W 80
+#define KNOB_H 75
+#define BTN_SIZE 35
 
 //==============================================================================
 /**
@@ -40,7 +41,7 @@ private:
     Knob midBit         { apvtsParameters[BIT_2].get(),         KNOB_W, KNOB_H, audioProcessor.apvts};    
     
     Knob highInputGain   { apvtsParameters[INPUT_GAIN_3].get(), KNOB_W, KNOB_H, audioProcessor.apvts};
-    Knob highOutputGain { apvtsParameters[OUTPUT_GAIN_3].get(), KNOB_W, KNOB_H, audioProcessor.apvts};
+    Knob highOutputGain  { apvtsParameters[OUTPUT_GAIN_3].get(),KNOB_W, KNOB_H, audioProcessor.apvts};
     Knob highDrive       { apvtsParameters[DRIVE_3].get(),      KNOB_W, KNOB_H, audioProcessor.apvts};
     Knob highKnee        { apvtsParameters[KNEE_3].get(),       KNOB_W, KNOB_H, audioProcessor.apvts};
     Knob highBit         { apvtsParameters[BIT_3].get(),        KNOB_W, KNOB_H, audioProcessor.apvts};    
@@ -50,10 +51,13 @@ private:
     Knob mix               { apvtsParameters[MIX].get(),            KNOB_W, KNOB_H, audioProcessor.apvts};
 
     PresetMenu presetMenu{ {0, 0, getLocalBounds().getWidth() * 0.5f, getLocalBounds().getHeight() * 0.06f}, audioProcessor.getPresetManager()};
-    GroupComponent lowBandGroup, midBandGroup, highBandGroup, globalGroup, presetManagerGroup, spectrumAnalyzerGroup;
+    
+    GroupComponent lowBandGroup, midBandGroup, highBandGroup, globalGroup, spectrumAnalyzerGroup;
 
-    ToggleButton lowBypass, midBypass, highBypass, globalBypass;
-    Label        lowBypassLabel, midBypassLabel, highBypassLabel, globalBypassLabel;
+    Switch lowBypass    { apvtsParameters[BYPASS_1].get(), BTN_SIZE, BTN_SIZE, audioProcessor.apvts, true};
+    Switch midBypass    { apvtsParameters[BYPASS_2].get(), BTN_SIZE, BTN_SIZE, audioProcessor.apvts, true};
+    Switch highBypass   { apvtsParameters[BYPASS_3].get(), BTN_SIZE, BTN_SIZE, audioProcessor.apvts, true};
+    Switch globalBypass { apvtsParameters[BYPASS].get(),   BTN_SIZE, BTN_SIZE, audioProcessor.apvts, false};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AttilaAudioProcessorEditor)
 };

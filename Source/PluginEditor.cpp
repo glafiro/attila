@@ -16,6 +16,7 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     lowBandGroup.addAndMakeVisible(lowDrive);
     lowBandGroup.addAndMakeVisible(lowKnee);
     lowBandGroup.addAndMakeVisible(lowBit);
+    addAndMakeVisible(lowBypass);
     
     midBandGroup.setText("MID");
     midBandGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
@@ -24,6 +25,7 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     midBandGroup.addAndMakeVisible(midDrive);
     midBandGroup.addAndMakeVisible(midKnee);
     midBandGroup.addAndMakeVisible(midBit);
+    addAndMakeVisible(midBypass);
     
     highBandGroup.setText("HIGH");
     highBandGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
@@ -32,6 +34,7 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     highBandGroup.addAndMakeVisible(highDrive);
     highBandGroup.addAndMakeVisible(highKnee);
     highBandGroup.addAndMakeVisible(highBit);
+    addAndMakeVisible(highBypass);
 
     globalGroup.setText("GLOBAL");
     globalGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
@@ -43,6 +46,7 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     addAndMakeVisible(midBandGroup);
     addAndMakeVisible(highBandGroup);
     addAndMakeVisible(globalGroup);
+    addAndMakeVisible(globalBypass);
     addAndMakeVisible(presetMenu);
 
     setSize (WIDTH, HEIGHT);
@@ -68,12 +72,19 @@ void AttilaAudioProcessorEditor::resized()
 
     auto bandGroupWidth = bounds.getWidth() * 0.333f;
     auto globalGroupWidth = bounds.getWidth() * 0.2f;
+    auto padding = bandGroupWidth * 0.06f;
+    auto bandTopHeight = bottomRowHeight * 0.20f;
+    auto bandGroupHeight = bottomRowHeight - bandTopHeight;
+
+    auto switchSize = topRowHeight;
+    auto bandSwitchOffset = bandTopHeight - switchSize;
 
     lowBandGroup.setBounds(0, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
     midBandGroup.setBounds(bandGroupWidth, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
     highBandGroup.setBounds(bandGroupWidth * 2, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
+
     globalGroup.setBounds(0, topRowHeight, globalGroupWidth, midRowHeight);
-    presetMenu.setBounds(0, 0, bounds.getWidth() * 0.5f, topRowHeight);
+    presetMenu.setBounds(switchSize, 0, bounds.getWidth() * 0.5f, topRowHeight);
 
     juce::Grid lowBandGrid;
     juce::Grid midBandGrid;
@@ -89,30 +100,31 @@ void AttilaAudioProcessorEditor::resized()
     globalGrid.templateRows = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1))};
     globalGrid.templateColumns = { Track(Fr(1)) };
 
-    lowBandGrid.items = {  
-        GridItem(lowInputGain), 
-        GridItem(lowOutputGain), 
+    lowBandGrid.items = {
         GridItem(lowDrive),
         GridItem(lowKnee),
         GridItem(lowBit),
+        GridItem(lowInputGain),
+        GridItem(lowOutputGain)
     };
 
-    
+
     midBandGrid.items = {  
-        GridItem(midInputGain), 
-        GridItem(midOutputGain), 
-        GridItem(midDrive),
+        GridItem(midDrive).withJustifySelf(GridItem::JustifySelf::center),
         GridItem(midKnee),
         GridItem(midBit),
+        GridItem(midInputGain), 
+        GridItem(midOutputGain)
     };    
     
     highBandGrid.items = {  
-        GridItem(highInputGain), 
-        GridItem(highOutputGain), 
         GridItem(highDrive),
         GridItem(highKnee),
         GridItem(highBit),
+        GridItem(highInputGain), 
+        GridItem(highOutputGain)
     };
+    
 
     globalGrid.items = {
         GridItem(globalInputGain),
@@ -120,9 +132,15 @@ void AttilaAudioProcessorEditor::resized()
         GridItem(mix),
     };
 
-    lowBandGrid.performLayout(lowBandGroup.getLocalBounds());
-    midBandGrid.performLayout(midBandGroup.getLocalBounds());
-    highBandGrid.performLayout(highBandGroup.getLocalBounds());
-    globalGrid.performLayout(globalGroup.getLocalBounds());
+    lowBandGrid.performLayout(lowBandGroup.getLocalBounds().removeFromBottom(bandGroupHeight).reduced(padding));
+    midBandGrid.performLayout(midBandGroup.getLocalBounds().removeFromBottom(bandGroupHeight).reduced(padding));
+    highBandGrid.performLayout(highBandGroup.getLocalBounds().removeFromBottom(bandGroupHeight).reduced(padding));
+    globalGrid.performLayout(globalGroup.getLocalBounds().reduced(padding));
+    
+    lowBypass.setBounds(padding, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
+    midBypass.setBounds(padding+ bandGroupWidth, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
+    highBypass.setBounds(padding + bandGroupWidth * 2, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
+    globalBypass.setBounds(0, 0, switchSize, switchSize);
+    
     
 }
