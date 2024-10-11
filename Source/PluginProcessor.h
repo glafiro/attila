@@ -11,7 +11,6 @@ using std::unordered_map;
 
 #include "DSPParameters.h"
 #include "MultibandDistortion.h"
-#include "Utils.h"
 #include "APVTSParameter.h"
 
 #define MIN_DB  -60.0f

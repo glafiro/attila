@@ -1,3 +1,5 @@
+#pragma once
+
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -190,8 +192,8 @@ bool AttilaAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* AttilaAudioProcessor::createEditor()
 {
-    //return new AttilaAudioProcessorEditor (*this);
-    return new GenericAudioProcessorEditor(*this);
+    return new AttilaAudioProcessorEditor (*this);
+    //return new GenericAudioProcessorEditor(*this);
 }
 
 
