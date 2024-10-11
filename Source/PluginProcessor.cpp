@@ -18,7 +18,14 @@ AttilaAudioProcessor::AttilaAudioProcessor()
     distortion()
 #endif
 {
+    if (!apvts.state.isValid()) {
+        DBG("Invalid value tree");
+        jassertfalse;
+    }
+    apvts.state.setProperty("presetName", "", nullptr);
     apvts.state.addListener(this);
+    presetManager = std::make_unique<PresetManager>(apvts);
+
     for (auto& param : apvtsParameters) {
         param->castParameter(apvts);
     }
@@ -199,16 +206,16 @@ juce::AudioProcessorEditor* AttilaAudioProcessor::createEditor()
 
 void AttilaAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-//    copyXmlToBinary(*apvts.copyState().createXml(), destData);
+    copyXmlToBinary(*apvts.copyState().createXml(), destData);
 }
 
 void AttilaAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    //std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
-    //if (xml.get() != nullptr && xml->hasTagName(apvts.state.getType())) {
-    //    apvts.replaceState(juce::ValueTree::fromXml(*xml));
-    //    parametersChanged.store(true);
-    //}
+    std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+    if (xml.get() != nullptr && xml->hasTagName(apvts.state.getType())) {
+        apvts.replaceState(juce::ValueTree::fromXml(*xml));
+        parametersChanged.store(true);
+    }
 }
 
 

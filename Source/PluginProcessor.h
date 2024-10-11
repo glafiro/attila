@@ -12,6 +12,7 @@ using std::unordered_map;
 #include "DSPParameters.h"
 #include "MultibandDistortion.h"
 #include "APVTSParameter.h"
+#include "PresetManager.h"
 
 #define MIN_DB  -60.0f
 #define MAX_DB  12.0f
@@ -41,30 +42,30 @@ enum ParameterNames{
 };
 
 static std::array<std::unique_ptr<IAPVTSParameter>, ParameterNames::PARAMETER_COUNT> apvtsParameters{
-    std::make_unique<APVTSParameterFloat> ("inputGain1",      "Low Input Gain",        0.0f),
-    std::make_unique<APVTSParameterFloat> ("outputGain1",     "Low Output Gain",       0.0f),
-    std::make_unique<APVTSParameterFloat> ("drive1",          "Low Drive",             0.0f),
-    std::make_unique<APVTSParameterFloat> ("knee1",           "Low Knee",              1.0f),
-    std::make_unique<APVTSParameterInt>   ("bit1",            "Low Bit",               16),
-    std::make_unique<APVTSParameterBool>  ("bypass1",         "Low Bypass",            false),
-    std::make_unique<APVTSParameterFloat> ("inputGain2",      "Mid Input Gain",        0.0f),
-    std::make_unique<APVTSParameterFloat> ("outputGain2",     "Mid Output Gain",       0.0f),
-    std::make_unique<APVTSParameterFloat> ("drive2",          "Mid Drive",             0.0f),
-    std::make_unique<APVTSParameterFloat> ("knee2",           "Mid Knee",              1.0f),
-    std::make_unique<APVTSParameterInt>   ("bit2",            "Mid Bit",               16),
-    std::make_unique<APVTSParameterBool>  ("bypass2",         "Mid Bypass",            false),
-    std::make_unique<APVTSParameterFloat> ("inputGain3",      "High Input Gain",       0.0f),
-    std::make_unique<APVTSParameterFloat> ("outputGain3",     "High Output Gain",      0.0f),
-    std::make_unique<APVTSParameterFloat> ("drive3",          "High Drive",            0.0f),
-    std::make_unique<APVTSParameterFloat> ("knee3",           "High Knee",             1.0f),
-    std::make_unique<APVTSParameterInt>   ("bit3",            "High Bit",              16),
-    std::make_unique<APVTSParameterBool>  ("bypass3",         "High Bypass",           false),
-    std::make_unique<APVTSParameterFloat> ("mix",             "Mix",                   100.0f),
-    std::make_unique<APVTSParameterFloat> ("inputGain",       "Input",                 0.0f),
-    std::make_unique<APVTSParameterFloat> ("outputGain",      "Output",                0.0f),
-    std::make_unique<APVTSParameterBool>  ("bypass",          "Bypass",                false),
-    std::make_unique<APVTSParameterFloat> ("lowMidCut",       "Low/Mid Cut",           700.0f),
-    std::make_unique<APVTSParameterFloat> ("midHighCut",      "Mid/high Cut",          5000.0f)
+    std::make_unique<APVTSParameterFloat> ("inputGain1",      "Input Gain",        0.0f),
+    std::make_unique<APVTSParameterFloat> ("outputGain1",     "Output Gain",       0.0f),
+    std::make_unique<APVTSParameterFloat> ("drive1",          "Drive",             0.0f),
+    std::make_unique<APVTSParameterFloat> ("knee1",           "Knee",              1.0f),
+    std::make_unique<APVTSParameterInt>   ("bit1",            "Bit",               16),
+    std::make_unique<APVTSParameterBool>  ("bypass1",         "Bypass",            false),
+    std::make_unique<APVTSParameterFloat> ("inputGain2",      "Input Gain",        0.0f),
+    std::make_unique<APVTSParameterFloat> ("outputGain2",     "Output Gain",       0.0f),
+    std::make_unique<APVTSParameterFloat> ("drive2",          "Drive",             0.0f),
+    std::make_unique<APVTSParameterFloat> ("knee2",           "Knee",              1.0f),
+    std::make_unique<APVTSParameterInt>   ("bit2",            "Bit",               16),
+    std::make_unique<APVTSParameterBool>  ("bypass2",         "Bypass",            false),
+    std::make_unique<APVTSParameterFloat> ("inputGain3",      "Input Gain",        0.0f),
+    std::make_unique<APVTSParameterFloat> ("outputGain3",     "Output Gain",       0.0f),
+    std::make_unique<APVTSParameterFloat> ("drive3",          "Drive",             0.0f),
+    std::make_unique<APVTSParameterFloat> ("knee3",           "Knee",              1.0f),
+    std::make_unique<APVTSParameterInt>   ("bit3",            "Bit",               16),
+    std::make_unique<APVTSParameterBool>  ("bypass3",         "Bypass",            false),
+    std::make_unique<APVTSParameterFloat> ("mix",             "Mix",               100.0f),
+    std::make_unique<APVTSParameterFloat> ("inputGain",       "Input",             0.0f),
+    std::make_unique<APVTSParameterFloat> ("outputGain",      "Output",            0.0f),
+    std::make_unique<APVTSParameterBool>  ("bypass",          "Bypass",            false),
+    std::make_unique<APVTSParameterFloat> ("lowMidCut",       "Low/Mid Cut",       700.0f),
+    std::make_unique<APVTSParameterFloat> ("midHighCut",      "Mid/high Cut",      5000.0f)
 };
 
 class AttilaAudioProcessor  : 
@@ -109,7 +110,8 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    AudioProcessorValueTreeState apvts;
+    AudioProcessorValueTreeState     apvts;
+    PresetManager& getPresetManager() { return *presetManager; }
 
 private:
     //==============================================================================
@@ -128,6 +130,8 @@ private:
 
     size_t oversampleFactor = 2;
     dsp::Oversampling<float> oversampling{ 2, oversampleFactor, juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, false};
+
+    std::unique_ptr<PresetManager>presetManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AttilaAudioProcessor)
 };
