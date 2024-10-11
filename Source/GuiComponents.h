@@ -56,18 +56,7 @@ public:
         btn.setBounds(0, 0, w, h);
         addAndMakeVisible(btn);
 
-        if (hasLabel) {
-            label.setText(param->displayValue, NotificationType::dontSendNotification);
-            label.setJustificationType(Justification::horizontallyCentred);
-            label.setBorderSize(BorderSize<int>(0));
-            label.attachToComponent(&btn, false);
-            addAndMakeVisible(label);
-        }
-        else {
-            label.setSize(0, 0);
-        }
-
-        setSize(w + label.getWidth(), h);
+        setSize(w, h);
 
         attachment = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(
             state, param->id.getParamID(), btn
@@ -76,13 +65,11 @@ public:
 
     void resized() {
         auto bounds = getLocalBounds();
-        btn.setBounds(bounds.getX(), bounds.getY(), bounds.getWidth() + label.getWidth(), bounds.getHeight());
+        btn.setBounds(bounds);
     }
 
 private:
     ToggleButton btn;
-    Label label;
-    String labelText;
     int width, height;
     AudioProcessorValueTreeState& state;
     std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment> attachment;

@@ -136,7 +136,7 @@ void AttilaAudioProcessorEditor::resized()
     midBandGrid.performLayout(midBandGroup.getLocalBounds().removeFromBottom(bandGroupHeight).reduced(padding));
     highBandGrid.performLayout(highBandGroup.getLocalBounds().removeFromBottom(bandGroupHeight).reduced(padding));
     globalGrid.performLayout(globalGroup.getLocalBounds().reduced(padding));
-    
+
     lowBypass.setBounds(padding, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
     midBypass.setBounds(padding+ bandGroupWidth, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
     highBypass.setBounds(padding + bandGroupWidth * 2, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
