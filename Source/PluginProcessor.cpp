@@ -254,7 +254,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::create
     layout.add(std::make_unique <juce::AudioParameterFloat>(
         apvtsParameters[ParameterNames::KNEE_1]->id,
         apvtsParameters[ParameterNames::KNEE_1]->displayValue,
-        juce::NormalisableRange<float>{ 1.0f, 100.0f, 0.001f },
+        juce::NormalisableRange<float>{ 1.0f, 48.0f, 0.001f },
         apvtsParameters[ParameterNames::KNEE_1]->getDefault()
     ));
 
@@ -295,7 +295,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::create
     layout.add(std::make_unique <juce::AudioParameterFloat>(
         apvtsParameters[ParameterNames::KNEE_2]->id,
         apvtsParameters[ParameterNames::KNEE_2]->displayValue,
-        juce::NormalisableRange<float>{ 1.0f, 100.0f, 0.001f },
+        juce::NormalisableRange<float>{ 1.0f, 48.0f, 0.001f },
         apvtsParameters[ParameterNames::KNEE_2]->getDefault()
     ));
 
@@ -336,7 +336,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::create
     layout.add(std::make_unique <juce::AudioParameterFloat>(
         apvtsParameters[ParameterNames::KNEE_3]->id,
         apvtsParameters[ParameterNames::KNEE_3]->displayValue,
-        juce::NormalisableRange<float>{ 1.0f, 100.0f, 0.001f },
+        juce::NormalisableRange<float>{ 1.0f, 48.0f, 0.001f },
         apvtsParameters[ParameterNames::KNEE_3]->getDefault()
     ));
 
