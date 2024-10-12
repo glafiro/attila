@@ -67,9 +67,7 @@ private:
     Switch highBypass   { apvtsParameters[BYPASS_3].get(), audioProcessor.apvts, Band::HIGH, highBandGroup};
     Switch globalBypass { apvtsParameters[BYPASS].get(),   audioProcessor.apvts, Band::GLOBAL, globalGroup};
 
-    Image logoImg;
     std::unique_ptr<Drawable> logo = Drawable::createFromImageData(BinaryData::logo_svg, BinaryData::logo_svgSize);
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AttilaAudioProcessorEditor)
 };

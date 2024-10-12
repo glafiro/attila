@@ -57,8 +57,6 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     highBandGroup.setLookAndFeel(&groupComponentLookAndFeel);
     globalGroup.setLookAndFeel(&groupComponentLookAndFeel);
 
-    logoImg = ImageCache::getFromMemory(BinaryData::logo_png, BinaryData::logo_pngSize);
-
     setSize (screenWidth, screenHeight);
 }
 
