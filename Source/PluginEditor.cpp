@@ -2,15 +2,15 @@
 
 #include "PluginEditor.h"
 
-using Track = juce::Grid::TrackInfo;
-using Fr = juce::Grid::Fr;
+using Track = Grid::TrackInfo;
+using Fr = Grid::Fr;
 
 //==============================================================================
 AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     lowBandGroup.setText("LOW");
-    lowBandGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
+    lowBandGroup.setTextLabelPosition(Justification::horizontallyCentred);
     lowBandGroup.addAndMakeVisible(lowInputGain);
     lowBandGroup.addAndMakeVisible(lowOutputGain);
     lowBandGroup.addAndMakeVisible(lowDrive);
@@ -18,14 +18,14 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     lowBandGroup.addAndMakeVisible(lowBit);
     
     midBandGroup.setText("MID");
-    midBandGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
+    midBandGroup.setTextLabelPosition(Justification::horizontallyCentred);
     midBandGroup.addAndMakeVisible(midInputGain);
     midBandGroup.addAndMakeVisible(midOutputGain);
     midBandGroup.addAndMakeVisible(midDrive);
     midBandGroup.addAndMakeVisible(midKnee);
     midBandGroup.addAndMakeVisible(midBit);
     highBandGroup.setText("HIGH");
-    highBandGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
+    highBandGroup.setTextLabelPosition(Justification::horizontallyCentred);
     highBandGroup.addAndMakeVisible(highInputGain);
     highBandGroup.addAndMakeVisible(highOutputGain);
     highBandGroup.addAndMakeVisible(highDrive);
@@ -33,7 +33,7 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     highBandGroup.addAndMakeVisible(highBit);
 
     globalGroup.setText("GLOBAL");
-    globalGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
+    globalGroup.setTextLabelPosition(Justification::horizontallyCentred);
     globalGroup.addAndMakeVisible(globalInputGain);
     globalGroup.addAndMakeVisible(globalOutputGain);
     globalGroup.addAndMakeVisible(mix);
@@ -58,7 +58,7 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     globalGroup.setLookAndFeel(&groupComponentLookAndFeel);
 
 
-    setSize (WIDTH, HEIGHT);
+    setSize (screenWidth, screenHeight);
 }
 
 AttilaAudioProcessorEditor::~AttilaAudioProcessorEditor()
@@ -70,7 +70,7 @@ AttilaAudioProcessorEditor::~AttilaAudioProcessorEditor()
 }
 
 //==============================================================================
-void AttilaAudioProcessorEditor::paint (juce::Graphics& g)
+void AttilaAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (Colors::veryDarkGrey);
 }
@@ -96,21 +96,21 @@ void AttilaAudioProcessorEditor::resized()
     highBandGroup.setBounds(midBandGroup.getX() + bandGroupWidth, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
 
     globalGroup.setBounds(bounds.getX(), topRowHeight, globalGroupWidth, midRowHeight);
-    presetMenu.setBounds(switchSize * 1.8f, bounds.getY(), bounds.getWidth() * 0.5f, topRowHeight - padding / 2.0f);
+    presetMenu.setBounds(switchSize * 1.8f, bounds.getY(), bounds.getWidth() * 0.65f, topRowHeight - padding / 2.0f);
 
-    juce::Grid lowBandGrid;
-    juce::Grid midBandGrid;
-    juce::Grid highBandGrid;
-    juce::Grid globalGrid;
+    Grid lowBandGrid;
+    Grid midBandGrid;
+    Grid highBandGrid;
+    Grid globalGrid;
 
-    lowBandGrid.templateRows = { Track(Fr(1)), Track(Fr(1)) };
-    lowBandGrid.templateColumns = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
-    midBandGrid.templateRows = { Track(Fr(1)), Track(Fr(1)) };
-    midBandGrid.templateColumns = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
-    highBandGrid.templateRows = { Track(Fr(1)), Track(Fr(1)) };
+    lowBandGrid.templateRows     = { Track(Fr(1)), Track(Fr(1)) };
+    lowBandGrid.templateColumns  = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
+    midBandGrid.templateRows     = { Track(Fr(1)), Track(Fr(1)) };
+    midBandGrid.templateColumns  = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
+    highBandGrid.templateRows    = { Track(Fr(1)), Track(Fr(1)) };
     highBandGrid.templateColumns = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
-    globalGrid.templateRows = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1))};
-    globalGrid.templateColumns = { Track(Fr(1)) };
+    globalGrid.templateRows      = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1))};
+    globalGrid.templateColumns   = { Track(Fr(1)) };
 
     lowBandGrid.items = {
         GridItem(lowDrive),

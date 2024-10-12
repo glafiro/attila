@@ -33,10 +33,15 @@ public:
         );
     }
 
+    void resize(int w, int h) {
+        width = w;
+        height = h;
+    }
+
     ~Knob() {}
 
     void resized() {
-        slider.setTopLeftPosition(0, label.getHeight());
+        slider.setBounds(0, label.getHeight(), width, height);
     }
 
 private:
@@ -104,10 +109,10 @@ public:
     
     PresetMenu(Rectangle<float> a, PresetManager& pm) : area(a), presetManager(pm) {
 
-        createButton(saveBtn, "SAVE");
-        createButton(deleteBtn, " DELETE"); // hackiest hack
-        createButton(nextBtn, ">");
-        createButton(prevBtn, "<");
+        createButton(saveBtn, "SAVE", PresetBtnType::SAVE);
+        createButton(deleteBtn, " DELETE", PresetBtnType::DELETE); // hackiest hack
+        createButton(nextBtn, ">", PresetBtnType::NEXT);
+        createButton(prevBtn, "<", PresetBtnType::PREV);
 
         presetList.setTextWhenNothingSelected("No preset selected");
         addAndMakeVisible(presetList);
@@ -118,7 +123,7 @@ public:
         setBounds(area.toNearestInt());
         setSize(area.getWidth(), area.getHeight());
 
-        //setLookAndFeel(PresetMenuLookAndFeel::get());
+        setLookAndFeel(PresetMenuLookAndFeel::get());
 
     }
 
@@ -133,14 +138,14 @@ public:
 
         auto bounds = getLocalBounds();
 
-        auto buttonWidth = bounds.getWidth() * 0.075f;
+        auto buttonSize = bounds.getHeight();
         auto presetListWidth = bounds.getWidth() * 0.7f;
 
-        deleteBtn.setBounds(bounds.getX(), bounds.getY(), buttonWidth, bounds.getHeight());
-        prevBtn.setBounds(bounds.getX() + buttonWidth, bounds.getY(), buttonWidth, bounds.getHeight());
-        presetList.setBounds(bounds.getX() + buttonWidth * 2, bounds.getY(), presetListWidth, bounds.getHeight());
-        nextBtn.setBounds(bounds.getX() + buttonWidth * 2 + presetListWidth, bounds.getY(), buttonWidth, bounds.getHeight());
-        saveBtn.setBounds(bounds.getX() + buttonWidth * 3 + presetListWidth, bounds.getY(), buttonWidth, bounds.getHeight());
+        deleteBtn.setBounds(bounds.getX(), bounds.getY(), buttonSize, buttonSize);
+        prevBtn.setBounds(bounds.getX() + buttonSize, bounds.getY(), buttonSize, buttonSize);
+        presetList.setBounds(bounds.getX() + buttonSize * 2, bounds.getY(), presetListWidth, bounds.getHeight());
+        nextBtn.setBounds(bounds.getX() + buttonSize * 2 + presetListWidth, bounds.getY(), buttonSize, buttonSize);
+        saveBtn.setBounds(bounds.getX() + buttonSize * 3 + presetListWidth, bounds.getY(), buttonSize, buttonSize);
     }
 
 private:
@@ -192,9 +197,10 @@ private:
         }
     }
 
-    void createButton(Button& btn, const String& text) {
+    void createButton(Button& btn, const String& text, PresetBtnType type) {
 
         btn.setButtonText(text);
+        btn.getProperties().set("type", type);
         addAndMakeVisible(btn);
         btn.addListener(this);
     }

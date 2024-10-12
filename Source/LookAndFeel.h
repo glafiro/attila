@@ -5,6 +5,7 @@
 using std::array;
 
 enum Band { LOW, MID, HIGH, GLOBAL};
+enum PresetBtnType { DELETE, PREV, NEXT, SAVE};
 
 namespace Colors
 {	
@@ -14,7 +15,8 @@ namespace Colors
     const Colour gradientTop{ 70, 70, 70 };
 	const Colour darkGrey{87, 84, 85};
     const Colour grey{114, 110, 111};
-    const Colour white{ 239, 218, 187 };
+    const Colour lightGrey{120, 121, 124};
+    const Colour cream{ 239, 218, 187 };
 	
     const Colour red{212, 64, 9};
     const Colour yellow{229, 179, 74};
@@ -100,8 +102,8 @@ public:
 
     void drawLabel(Graphics& g, Label& l ) override {
         auto bounds = l.getLocalBounds();
-        auto fontSize = bounds.getHeight();
-        g.setColour(Colors::white);
+        auto fontSize = bounds.getHeight() * 0.9f;
+        g.setColour(Colors::cream);
         g.setFont(labelFont.withHeight(fontSize));
         g.drawText(l.getText(), bounds, Justification::centred, false);
     }
@@ -116,7 +118,7 @@ public:
         // Green/Turquoise - high band parameters
         // Blue - global parameters
         Colour mainColor = primaryColors[static_cast<int>(slider.getProperties().getWithDefault("type", Band::GLOBAL))];
-        Colour dialColor = Colors::white;
+        Colour dialColor = Colors::cream;
 
         auto bounds = slider.getLocalBounds().reduced(w * 0.04f);
 
@@ -220,7 +222,7 @@ public:
         g.fillRoundedRectangle(textBoxBounds, w * 0.06f);
 
         auto fontSize = textBoxBounds.getHeight() * 0.75f;
-        g.setColour(Colors::white);
+        g.setColour(Colors::cream);
         g.setFont(textBoxFont.withHeight(fontSize));
         g.drawText(slider.getTextFromValue(slider.getValue()), textBoxBounds, Justification::centred, false);
 
@@ -239,7 +241,7 @@ public:
 };
 
 
-class SwitchLookAndFeel : public juce::LookAndFeel_V4
+class SwitchLookAndFeel : public LookAndFeel_V4
 {
 public:
     SwitchLookAndFeel() {
@@ -251,7 +253,7 @@ public:
         return &inst;
     }
 
-    void drawToggleButton(juce::Graphics& g, juce::ToggleButton& btn, bool highlighted, bool down) override {
+    void drawToggleButton(Graphics& g, ToggleButton& btn, bool highlighted, bool down) override {
         auto bounds = btn.getLocalBounds().reduced(btn.getLocalBounds().getWidth() * 0.05f);
         auto iconBounds = bounds.reduced(bounds.getWidth() * 0.18f);
         auto toggle = btn.getToggleState();
@@ -277,7 +279,7 @@ public:
             iconColor = state ? Colour{ 200, 200, 200 } : Colors::grey;
         }
         else {
-            iconColor = state ? Colors::white : Colors::darkGrey;
+            iconColor = state ? Colors::cream : Colors::darkGrey;
         }
         icon->replaceColour(Colour{ 0, 0, 0 }, iconColor);
         icon->drawWithin(g, iconBounds.toFloat(), RectanglePlacement::centred, 1.0f);
@@ -285,4 +287,129 @@ public:
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SwitchLookAndFeel)
+};
+
+
+class PresetMenuLookAndFeel : public LookAndFeel_V4
+{
+public:
+    PresetMenuLookAndFeel() {
+        //btnFont = Font(Typeface::createSystemTypefaceFor(BinaryData::arial_narrow_7_ttf, BinaryData::arial_narrow_7_ttfSize));
+        //presetFont = Font(Typeface::createSystemTypefaceFor(BinaryData::game_over_ttf, BinaryData::game_over_ttfSize));
+        menuFont = Font(Typeface::createSystemTypefaceFor(BinaryData::hack_ttf, BinaryData::hack_ttfSize));
+
+    }
+
+    static PresetMenuLookAndFeel* get() {
+        static PresetMenuLookAndFeel inst;
+        return &inst;
+    }
+
+    void drawButtonBackground(Graphics& g, Button& btn, const Colour& bg, bool highlight, bool down) override {
+        auto bounds = btn.getLocalBounds().reduced(btn.getLocalBounds().getHeight() * 0.1f);
+        int cornerSize = bounds.getHeight() * 0.16f;
+        int shadowRadius = (btn.getLocalBounds().getWidth() - bounds.getWidth()) * 2;
+
+        Path btnPath;
+        btnPath.addRoundedRectangle(bounds, cornerSize);
+        DropShadow btnShadow{ Colors::black, shadowRadius, {0, 0} };
+        btnShadow.drawForPath(g, btnPath);
+        g.setColour(highlight ? Colors::cream : Colors::lightGrey);
+        g.fillRoundedRectangle(bounds.toFloat(), cornerSize);
+    }
+
+    void drawButtonText(Graphics& g, TextButton& btn, bool highlight, bool down) override {
+        auto bounds = btn.getLocalBounds().reduced(btn.getLocalBounds().getHeight() * 0.2f);
+
+        auto trashIcon = Drawable::createFromImageData(BinaryData::trashIcon_svg, BinaryData::trashIcon_svgSize);
+        auto floppyIcon = Drawable::createFromImageData(BinaryData::floppyIcon_svg, BinaryData::floppyIcon_svgSize);
+
+        int type = btn.getProperties().getWithDefault("type", PresetBtnType::DELETE);
+
+        auto iconColor = highlight ? Colors::grey : Colors::cream;
+
+        if (type == PresetBtnType::DELETE) {
+            trashIcon->replaceColour(Colour{ 0, 0, 0 }, iconColor);
+            trashIcon->drawWithin(g, bounds.toFloat(), RectanglePlacement::centred, 1.0f);
+        }
+        else if (type == PresetBtnType::SAVE) {
+            floppyIcon->replaceColour(Colour{ 0, 0, 0 }, iconColor);
+            floppyIcon->drawWithin(g, bounds.toFloat(), RectanglePlacement::centred, 1.0f);
+        }
+        else {
+            float fontSize = btn.getLocalBounds().getHeight();
+            g.setColour(iconColor);
+            g.setFont(menuFont.withHeight(fontSize));
+            g.drawFittedText(btn.getButtonText(), bounds, juce::Justification::centred, 1);
+        }
+
+    }
+
+    Font getComboBoxFont(ComboBox& comboBox) override
+    {
+        return presetFont;
+    }
+
+    void positionComboBoxText(ComboBox&, Label& labelToPosition) override {}
+
+    void drawComboBox(Graphics& g, int w, int h, bool down, int buttonX, int buttonY, int buttonW, int buttonH, ComboBox& box) override {
+        const float textAreaWProportion = 0.88f;
+
+        auto bounds = box.getLocalBounds().reduced(box.getLocalBounds().getHeight() * 0.1f);
+        const auto textArea = box.getLocalBounds().reduced(box.getLocalBounds().proportionOfHeight(0.3f));
+        const auto text = box.getText();
+
+        g.setColour(Colors::lightGrey);
+        int cornerSize = bounds.getHeight() * 0.16f;
+        g.fillRoundedRectangle(bounds.toFloat(), cornerSize);
+
+        g.setColour(Colors::cream);
+        g.setFont(presetFont);
+        g.setFont(0.6f * h);
+        g.drawText(text, textArea, Justification::left);
+
+
+        const auto arrowArea = Rectangle<float>(w * textAreaWProportion, h * 0.38f, w * 0.065f, h * 0.25f);
+        Path arrow;
+        arrow.addTriangle(arrowArea.getX(), arrowArea.getY(),
+            arrowArea.getX() + arrowArea.getWidth() / 2.0f, arrowArea.getY() + arrowArea.getHeight(),
+            arrowArea.getX() + arrowArea.getWidth(), arrowArea.getY());
+
+        PathStrokeType stroke{ 2.0f };
+
+        g.setColour(Colors::cream);
+        g.strokePath(arrow, stroke);
+    }
+
+    void drawComboBoxTextWhenNothingSelected(Graphics& g, ComboBox& box, Label&) override {
+        const auto textArea = box.getLocalBounds().reduced(box.getLocalBounds().proportionOfHeight(0.3f));
+        const auto fontSize = box.getLocalBounds().getHeight() * 0.6f;
+        const auto text = box.getTextWhenNothingSelected();
+        g.setColour(Colors::darkGrey);
+        g.setFont(presetFont);
+        g.setFont(fontSize);
+        g.drawText(text, textArea, Justification::left);
+    }
+
+    void drawPopupMenuBackground(Graphics& g, int width, int height) override
+    {
+        g.fillAll(Colors::lightGrey);
+    }
+
+    void drawPopupMenuItem(Graphics& g, const Rectangle<int>& area, bool isSeparator, bool isActive,
+        bool isHighlighted, bool isTicked, bool hasSubMenu, const String& text,
+        const String& shortcutKeyText, const Drawable* icon, const Colour* textColour) override
+    {
+
+        g.setColour(isTicked ? Colors::cream : Colour{200, 200, 200}); // Text color
+        g.setFont(menuFont);
+        g.drawFittedText(text, area.reduced(5), Justification::centredLeft, 1);
+    }
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PresetMenuLookAndFeel)
+
+        Font btnFont;
+    Font presetFont;
+    Font menuFont;
 };
