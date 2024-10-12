@@ -57,6 +57,7 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     highBandGroup.setLookAndFeel(&groupComponentLookAndFeel);
     globalGroup.setLookAndFeel(&groupComponentLookAndFeel);
 
+    logoImg = ImageCache::getFromMemory(BinaryData::logo_png, BinaryData::logo_pngSize);
 
     setSize (screenWidth, screenHeight);
 }
@@ -73,6 +74,14 @@ AttilaAudioProcessorEditor::~AttilaAudioProcessorEditor()
 void AttilaAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (Colors::veryDarkGrey);
+
+    float logoHeight = screenHeight * 0.04f;
+    float logoWidth = logoHeight * 7.58f;
+    float margin = screenHeight * 0.01f;
+    float xOffset = screenWidth - logoWidth - margin;
+    float yOffset = margin;
+    auto bounds = Rectangle<float>{ xOffset, yOffset, logoWidth, logoHeight };
+    logo->drawWithin(g, bounds, RectanglePlacement::centred, 1.0f);
 }
 
 void AttilaAudioProcessorEditor::resized()
@@ -81,7 +90,7 @@ void AttilaAudioProcessorEditor::resized()
 
     auto topRowHeight =    bounds.getHeight() * 0.06f;
     auto midRowHeight =    bounds.getHeight() * 0.52f;
-    auto bottomRowHeight = bounds.getHeight() * 0.42f;
+    auto bottomRowHeight = bounds.getHeight() * 0.43f;
 
     auto bandGroupWidth = bounds.getWidth() * 0.333f;
     auto globalGroupWidth = bounds.getWidth() * 0.2f;
@@ -96,7 +105,7 @@ void AttilaAudioProcessorEditor::resized()
     highBandGroup.setBounds(midBandGroup.getX() + bandGroupWidth, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
 
     globalGroup.setBounds(bounds.getX(), topRowHeight, globalGroupWidth, midRowHeight);
-    presetMenu.setBounds(switchSize * 1.8f, bounds.getY(), bounds.getWidth() * 0.65f, topRowHeight - padding / 2.0f);
+    presetMenu.setBounds(switchSize * 1.8f, bounds.getY(), bounds.getWidth() * 0.6f, topRowHeight - padding / 2.0f);
 
     Grid lowBandGrid;
     Grid midBandGrid;
@@ -159,5 +168,5 @@ void AttilaAudioProcessorEditor::resized()
     lowBypass.setBounds(padding, topRowHeight + midRowHeight + padding * 0.5f, switchSize, switchSize);
     midBypass.setBounds(padding + bandGroupWidth, topRowHeight + midRowHeight + padding * 0.5f, switchSize, switchSize);
     highBypass.setBounds(padding + bandGroupWidth * 2, topRowHeight + midRowHeight + padding * 0.5f, switchSize, switchSize);
-    globalBypass.setBounds(bounds.getX(), bounds.getY(), switchSize * 1.5f, switchSize * 1.5f);
+    globalBypass.setBounds(bounds.getX(), 0.0f, switchSize * 1.5f, switchSize * 1.5f);
 }

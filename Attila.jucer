@@ -15,6 +15,10 @@
               xcodeResource="1"/>
         <FILE id="mcsCQ4" name="hack.ttf" compile="0" resource="1" file="Resources/hack.ttf"
               xcodeResource="1"/>
+        <FILE id="txwpXz" name="logo.png" compile="0" resource="1" file="Resources/logo.png"
+              xcodeResource="1"/>
+        <FILE id="OKUnIm" name="logo.svg" compile="0" resource="1" file="Resources/logo.svg"
+              xcodeResource="1"/>
         <FILE id="ZIabxJ" name="switchIcon.svg" compile="0" resource="1" file="Resources/switchIcon.svg"
               xcodeResource="1"/>
         <FILE id="ri70a0" name="trashIcon.svg" compile="0" resource="1" file="Resources/trashIcon.svg"

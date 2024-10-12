@@ -53,7 +53,7 @@ private:
     Knob globalOutputGain  { apvtsParameters[OUTPUT_GLOBAL].get(),  knobW, knobH, audioProcessor.apvts, Band::GLOBAL};
     Knob mix               { apvtsParameters[MIX].get(),            knobW, knobH, audioProcessor.apvts, Band::GLOBAL};
 
-    PresetMenu presetMenu{ {0, 0, getLocalBounds().getWidth() * 0.9f, getLocalBounds().getHeight() * 0.06f}, audioProcessor.getPresetManager()};
+    PresetMenu presetMenu{ {0, 0, getLocalBounds().getWidth() * 0.6f, getLocalBounds().getHeight() * 0.06f}, audioProcessor.getPresetManager()};
     
     GroupComponent lowBandGroup;
     GroupComponent midBandGroup;
@@ -66,6 +66,10 @@ private:
     Switch midBypass    { apvtsParameters[BYPASS_2].get(), audioProcessor.apvts, Band::MID, midBandGroup};
     Switch highBypass   { apvtsParameters[BYPASS_3].get(), audioProcessor.apvts, Band::HIGH, highBandGroup};
     Switch globalBypass { apvtsParameters[BYPASS].get(),   audioProcessor.apvts, Band::GLOBAL, globalGroup};
+
+    Image logoImg;
+    std::unique_ptr<Drawable> logo = Drawable::createFromImageData(BinaryData::logo_svg, BinaryData::logo_svgSize);
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AttilaAudioProcessorEditor)
 };
