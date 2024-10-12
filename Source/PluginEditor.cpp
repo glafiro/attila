@@ -16,7 +16,6 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     lowBandGroup.addAndMakeVisible(lowDrive);
     lowBandGroup.addAndMakeVisible(lowKnee);
     lowBandGroup.addAndMakeVisible(lowBit);
-    addAndMakeVisible(lowBypass);
     
     midBandGroup.setText("MID");
     midBandGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
@@ -25,8 +24,6 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     midBandGroup.addAndMakeVisible(midDrive);
     midBandGroup.addAndMakeVisible(midKnee);
     midBandGroup.addAndMakeVisible(midBit);
-    addAndMakeVisible(midBypass);
-    
     highBandGroup.setText("HIGH");
     highBandGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
     highBandGroup.addAndMakeVisible(highInputGain);
@@ -34,7 +31,6 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     highBandGroup.addAndMakeVisible(highDrive);
     highBandGroup.addAndMakeVisible(highKnee);
     highBandGroup.addAndMakeVisible(highBit);
-    addAndMakeVisible(highBypass);
 
     globalGroup.setText("GLOBAL");
     globalGroup.setTextLabelPosition(juce::Justification::horizontallyCentred);
@@ -49,8 +45,15 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     addAndMakeVisible(globalBypass);
     addAndMakeVisible(presetMenu);
     
+    addAndMakeVisible(lowBypass);
+    addAndMakeVisible(midBypass);
+    addAndMakeVisible(highBypass);
+
+    lowBandGroup.getProperties().set("type", Band::LOW);
     lowBandGroup.setLookAndFeel(&groupComponentLookAndFeel);
+    midBandGroup.getProperties().set("type", Band::MID);
     midBandGroup.setLookAndFeel(&groupComponentLookAndFeel);
+    highBandGroup.getProperties().set("type", Band::HIGH);
     highBandGroup.setLookAndFeel(&groupComponentLookAndFeel);
     globalGroup.setLookAndFeel(&groupComponentLookAndFeel);
 
@@ -77,13 +80,13 @@ void AttilaAudioProcessorEditor::resized()
     auto bounds = getLocalBounds().reduced(getWidth() * 0.005f);
 
     auto topRowHeight =    bounds.getHeight() * 0.06f;
-    auto midRowHeight =    bounds.getHeight() * 0.47;
-    auto bottomRowHeight = bounds.getHeight() * 0.47;
+    auto midRowHeight =    bounds.getHeight() * 0.52f;
+    auto bottomRowHeight = bounds.getHeight() * 0.42f;
 
     auto bandGroupWidth = bounds.getWidth() * 0.333f;
     auto globalGroupWidth = bounds.getWidth() * 0.2f;
     auto padding = bandGroupWidth * 0.06f;
-    auto bandTopHeight = bottomRowHeight * 0.20f;
+    auto bandTopHeight = bottomRowHeight * 0.18f;
     auto bandGroupHeight = bottomRowHeight - bandTopHeight;
 
     auto switchSize = topRowHeight;
@@ -120,7 +123,7 @@ void AttilaAudioProcessorEditor::resized()
 
 
     midBandGrid.items = {  
-        GridItem(midDrive).withJustifySelf(GridItem::JustifySelf::center),
+        GridItem(midDrive),
         GridItem(midKnee),
         GridItem(midBit),
         GridItem(midInputGain), 
@@ -142,9 +145,16 @@ void AttilaAudioProcessorEditor::resized()
         GridItem(mix),
     };
 
-    lowBandGrid.performLayout(lowBandGroup.getLocalBounds().removeFromBottom(bandGroupHeight).reduced(padding));
-    midBandGrid.performLayout(midBandGroup.getLocalBounds().removeFromBottom(bandGroupHeight).reduced(padding));
-    highBandGrid.performLayout(highBandGroup.getLocalBounds().removeFromBottom(bandGroupHeight).reduced(padding));
+    lowBandGrid.performLayout(lowBandGroup.getLocalBounds().
+        removeFromBottom(bandGroupHeight).
+        removeFromRight(bandGroupWidth - padding));
+    midBandGrid.performLayout(midBandGroup.getLocalBounds().
+        removeFromBottom(bandGroupHeight).
+        removeFromRight(bandGroupWidth - padding));
+    highBandGrid.performLayout(highBandGroup.getLocalBounds().
+        removeFromBottom(bandGroupHeight).
+        removeFromRight(bandGroupWidth - padding));
+
     globalGrid.performLayout(globalGroup.getLocalBounds().reduced(padding));
 
     lowBypass.setBounds(padding, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);

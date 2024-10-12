@@ -247,7 +247,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::create
     layout.add(std::make_unique <juce::AudioParameterFloat>(
         apvtsParameters[ParameterNames::DRIVE_1]->id,
         apvtsParameters[ParameterNames::DRIVE_1]->displayValue,
-        juce::NormalisableRange<float>{ -36.0f, 36.0f, 0.01f },
+        juce::NormalisableRange<float>{ 0.0f, 36.0f, 0.01f },
         apvtsParameters[ParameterNames::DRIVE_1]->getDefault()
     ));    
 
@@ -288,7 +288,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::create
     layout.add(std::make_unique <juce::AudioParameterFloat>(
         apvtsParameters[ParameterNames::DRIVE_2]->id,
         apvtsParameters[ParameterNames::DRIVE_2]->displayValue,
-        juce::NormalisableRange<float>{ -36.0f, 36.0f, 0.01f },
+        juce::NormalisableRange<float>{ 0.0f, 36.0f, 0.01f },
         apvtsParameters[ParameterNames::DRIVE_2]->getDefault()
     ));
 
@@ -329,7 +329,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::create
     layout.add(std::make_unique <juce::AudioParameterFloat>(
         apvtsParameters[ParameterNames::DRIVE_3]->id,
         apvtsParameters[ParameterNames::DRIVE_3]->displayValue,
-        juce::NormalisableRange<float>{ -36.0f, 36.0f, 0.01f },
+        juce::NormalisableRange<float>{ 0.0f, 36.0f, 0.01f },
         apvtsParameters[ParameterNames::DRIVE_3]->getDefault()
     ));
 

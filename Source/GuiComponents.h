@@ -2,19 +2,21 @@
 
 #include <JuceHeader.h>
 #include "PresetManager.h"
+#include "LookAndFeel.h"
 
 class Knob : public Component
 {
 public:
     Slider slider;
 
-    Knob(IAPVTSParameter* param, int w, int h, AudioProcessorValueTreeState& apvts) :
+    Knob(IAPVTSParameter* param, int w, int h, AudioProcessorValueTreeState& apvts, Band type) :
         width(w), height(h), state(apvts)
     {
         
         slider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-        slider.setTextBoxStyle(Slider::TextBoxBelow, false, w, h * 0.186);
+        slider.setTextBoxStyle(Slider::NoTextBox, false, w, h * 0.186);
         slider.setBounds(0, 0, w, h);
+        slider.getProperties().set("type", type);
         addAndMakeVisible(slider);
 
         label.setText(param->displayValue, NotificationType::dontSendNotification);
@@ -23,8 +25,8 @@ public:
         label.attachToComponent(&slider, false);
         addAndMakeVisible(label);
 
-        setSize(w, h + label.getHeight());
-        //setLookAndFeel(KnobLookAndFeel::get());
+        setSize(w, h * 2.0f);
+        setLookAndFeel(KnobLookAndFeel::get());
 
         attachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(
             state, param->id.getParamID(), slider
