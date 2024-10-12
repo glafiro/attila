@@ -48,23 +48,33 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     addAndMakeVisible(globalGroup);
     addAndMakeVisible(globalBypass);
     addAndMakeVisible(presetMenu);
+    
+    lowBandGroup.setLookAndFeel(&groupComponentLookAndFeel);
+    midBandGroup.setLookAndFeel(&groupComponentLookAndFeel);
+    highBandGroup.setLookAndFeel(&groupComponentLookAndFeel);
+    globalGroup.setLookAndFeel(&groupComponentLookAndFeel);
+
 
     setSize (WIDTH, HEIGHT);
 }
 
 AttilaAudioProcessorEditor::~AttilaAudioProcessorEditor()
 {
+    lowBandGroup.setLookAndFeel(nullptr);
+    midBandGroup.setLookAndFeel(nullptr);
+    highBandGroup.setLookAndFeel(nullptr);
+    globalGroup.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
 void AttilaAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll (Colors::veryDarkGrey);
 }
 
 void AttilaAudioProcessorEditor::resized()
 {
-    auto bounds = getLocalBounds();
+    auto bounds = getLocalBounds().reduced(getWidth() * 0.005f);
 
     auto topRowHeight =    bounds.getHeight() * 0.06f;
     auto midRowHeight =    bounds.getHeight() * 0.47;
@@ -79,12 +89,12 @@ void AttilaAudioProcessorEditor::resized()
     auto switchSize = topRowHeight;
     auto bandSwitchOffset = bandTopHeight - switchSize;
 
-    lowBandGroup.setBounds(0, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
-    midBandGroup.setBounds(bandGroupWidth, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
-    highBandGroup.setBounds(bandGroupWidth * 2, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
+    lowBandGroup.setBounds(bounds.getX(), topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
+    midBandGroup.setBounds(lowBandGroup.getX() + bandGroupWidth, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
+    highBandGroup.setBounds(midBandGroup.getX() + bandGroupWidth, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
 
-    globalGroup.setBounds(0, topRowHeight, globalGroupWidth, midRowHeight);
-    presetMenu.setBounds(switchSize, 0, bounds.getWidth() * 0.5f, topRowHeight);
+    globalGroup.setBounds(bounds.getX(), topRowHeight, globalGroupWidth, midRowHeight);
+    presetMenu.setBounds(switchSize, bounds.getY(), bounds.getWidth() * 0.5f, topRowHeight - padding / 2.0f);
 
     juce::Grid lowBandGrid;
     juce::Grid midBandGrid;
@@ -140,7 +150,5 @@ void AttilaAudioProcessorEditor::resized()
     lowBypass.setBounds(padding, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
     midBypass.setBounds(padding+ bandGroupWidth, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
     highBypass.setBounds(padding + bandGroupWidth * 2, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
-    globalBypass.setBounds(0, 0, switchSize, switchSize);
-    
-    
+    globalBypass.setBounds(bounds.getX(), bounds.getY(), switchSize, switchSize);
 }

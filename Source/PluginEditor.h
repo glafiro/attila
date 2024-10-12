@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "GuiComponents.h"
+#include "LookAndFeel.h"
 
 #define WIDTH 1024.0f
 #define HEIGHT 768.0f
@@ -53,7 +54,7 @@ private:
     PresetMenu presetMenu{ {0, 0, getLocalBounds().getWidth() * 0.5f, getLocalBounds().getHeight() * 0.06f}, audioProcessor.getPresetManager()};
     
     GroupComponent lowBandGroup, midBandGroup, highBandGroup, globalGroup, spectrumAnalyzerGroup;
-
+    GroupComponentLookAndFeel groupComponentLookAndFeel{ WIDTH, HEIGHT };
     Switch lowBypass    { apvtsParameters[BYPASS_1].get(), BTN_SIZE, BTN_SIZE, audioProcessor.apvts, true};
     Switch midBypass    { apvtsParameters[BYPASS_2].get(), BTN_SIZE, BTN_SIZE, audioProcessor.apvts, true};
     Switch highBypass   { apvtsParameters[BYPASS_3].get(), BTN_SIZE, BTN_SIZE, audioProcessor.apvts, true};
