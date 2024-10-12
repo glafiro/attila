@@ -10,7 +10,7 @@
 
 #define KNOB_W 80
 #define KNOB_H 102
-#define BTN_SIZE 35
+#define BTN_SIZE 15
 
 //==============================================================================
 /**
@@ -53,12 +53,17 @@ private:
 
     PresetMenu presetMenu{ {0, 0, getLocalBounds().getWidth() * 0.5f, getLocalBounds().getHeight() * 0.06f}, audioProcessor.getPresetManager()};
     
-    GroupComponent lowBandGroup, midBandGroup, highBandGroup, globalGroup, spectrumAnalyzerGroup;
+    GroupComponent lowBandGroup;
+    GroupComponent midBandGroup;
+    GroupComponent highBandGroup;
+    GroupComponent globalGroup;
+
     GroupComponentLookAndFeel groupComponentLookAndFeel{ WIDTH, HEIGHT };
-    Switch lowBypass    { apvtsParameters[BYPASS_1].get(), BTN_SIZE, BTN_SIZE, audioProcessor.apvts, true};
-    Switch midBypass    { apvtsParameters[BYPASS_2].get(), BTN_SIZE, BTN_SIZE, audioProcessor.apvts, true};
-    Switch highBypass   { apvtsParameters[BYPASS_3].get(), BTN_SIZE, BTN_SIZE, audioProcessor.apvts, true};
-    Switch globalBypass { apvtsParameters[BYPASS].get(),   BTN_SIZE, BTN_SIZE, audioProcessor.apvts, false};
+
+    Switch lowBypass    { apvtsParameters[BYPASS_1].get(), audioProcessor.apvts, Band::LOW, lowBandGroup};
+    Switch midBypass    { apvtsParameters[BYPASS_2].get(), audioProcessor.apvts, Band::MID, midBandGroup};
+    Switch highBypass   { apvtsParameters[BYPASS_3].get(), audioProcessor.apvts, Band::HIGH, highBandGroup};
+    Switch globalBypass { apvtsParameters[BYPASS].get(),   audioProcessor.apvts, Band::GLOBAL, globalGroup};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AttilaAudioProcessorEditor)
 };

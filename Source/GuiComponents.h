@@ -51,18 +51,32 @@ private:
 
 class Switch : public Component
 {
+    GroupComponent& group;
 public:
-    Switch(IAPVTSParameter* param, int w, int h, AudioProcessorValueTreeState& apvts, bool hasLabel=false) :
-        width(w), height(h), state(apvts)
+    
+    Switch(IAPVTSParameter* param, AudioProcessorValueTreeState& apvts, Band type, GroupComponent& gr) :
+        state(apvts), group(gr)
     {
-        btn.setBounds(0, 0, w, h);
+        btn.setBounds(0, 0, 35.0f, 35.0f);
+
         addAndMakeVisible(btn);
 
-        setSize(w, h);
+        setSize(35.0f, 35.0f);
+
+        setLookAndFeel(SwitchLookAndFeel::get());
+        btn.getProperties().set("type", type);
 
         attachment = std::make_unique<AudioProcessorValueTreeState::ButtonAttachment>(
             state, param->id.getParamID(), btn
         );
+
+        btn.onClick = [this]() {buttonClicked(); };
+        group.setEnabled(!btn.getToggleState());
+
+    }
+
+    void buttonClicked() {
+        group.setEnabled(!btn.getToggleState());
     }
 
     void resized() {

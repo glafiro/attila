@@ -89,15 +89,14 @@ void AttilaAudioProcessorEditor::resized()
     auto bandTopHeight = bottomRowHeight * 0.18f;
     auto bandGroupHeight = bottomRowHeight - bandTopHeight;
 
-    auto switchSize = topRowHeight;
-    auto bandSwitchOffset = bandTopHeight - switchSize;
+    auto switchSize = bandTopHeight * 0.5f;
 
     lowBandGroup.setBounds(bounds.getX(), topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
     midBandGroup.setBounds(lowBandGroup.getX() + bandGroupWidth, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
     highBandGroup.setBounds(midBandGroup.getX() + bandGroupWidth, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
 
     globalGroup.setBounds(bounds.getX(), topRowHeight, globalGroupWidth, midRowHeight);
-    presetMenu.setBounds(switchSize, bounds.getY(), bounds.getWidth() * 0.5f, topRowHeight - padding / 2.0f);
+    presetMenu.setBounds(switchSize * 1.8f, bounds.getY(), bounds.getWidth() * 0.5f, topRowHeight - padding / 2.0f);
 
     juce::Grid lowBandGrid;
     juce::Grid midBandGrid;
@@ -157,8 +156,8 @@ void AttilaAudioProcessorEditor::resized()
 
     globalGrid.performLayout(globalGroup.getLocalBounds().reduced(padding));
 
-    lowBypass.setBounds(padding, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
-    midBypass.setBounds(padding+ bandGroupWidth, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
-    highBypass.setBounds(padding + bandGroupWidth * 2, topRowHeight + midRowHeight + bandSwitchOffset, switchSize, switchSize);
-    globalBypass.setBounds(bounds.getX(), bounds.getY(), switchSize, switchSize);
+    lowBypass.setBounds(padding, topRowHeight + midRowHeight + padding * 0.5f, switchSize, switchSize);
+    midBypass.setBounds(padding + bandGroupWidth, topRowHeight + midRowHeight + padding * 0.5f, switchSize, switchSize);
+    highBypass.setBounds(padding + bandGroupWidth * 2, topRowHeight + midRowHeight + padding * 0.5f, switchSize, switchSize);
+    globalBypass.setBounds(bounds.getX(), bounds.getY(), switchSize * 1.5f, switchSize * 1.5f);
 }

@@ -8,6 +8,7 @@ enum Band { LOW, MID, HIGH, GLOBAL};
 
 namespace Colors
 {	
+    const Colour pitchBlack{ 0, 0, 0 };
 	const Colour black{43, 40, 40};
 	const Colour veryDarkGrey{63, 61, 62};
     const Colour gradientTop{ 70, 70, 70 };
@@ -46,24 +47,29 @@ private:
 		g.fillRoundedRectangle(rectBounds.toFloat(), w * 0.03f);
         
         int type = group.getProperties().getWithDefault("type", Band::GLOBAL);
+        bool state = group.isEnabled();
 
         if (type != Band::GLOBAL) {
             Colour mainColor = primaryColors[static_cast<int>(group.getProperties().getWithDefault("type", Band::GLOBAL))];
             Path topBandPath;
-            auto topBandBounds = rectBounds.removeFromTop(h * 0.11f);
+            auto topBandBounds = rectBounds.removeFromTop(h * 0.12f);
             topBandPath.addRoundedRectangle(
                 topBandBounds.getX(), topBandBounds.getY(), 
                 topBandBounds.getWidth(), topBandBounds.getHeight(), 
                 cornerSize, cornerSize, true, true, false, false
             );
-            g.setColour(mainColor);
+            if (state) {
+                g.setColour(mainColor);
+            }
+            else {
+                g.setColour(Colors::grey);
+            }
             g.fillPath(topBandPath);
 
             auto fontSize = topBandBounds.getHeight() * 0.7f;
             g.setColour(Colors::veryDarkGrey);
             g.setFont(mainFont.withHeight(fontSize));
             g.drawText(text, topBandBounds.removeFromRight(w * 0.8f), Justification::left, false);
-
         }
 
 
@@ -230,4 +236,53 @@ public:
         layout.textBoxBounds = textBoxBounds;
         return layout;
     }
+};
+
+
+class SwitchLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    SwitchLookAndFeel() {
+
+    }
+
+    static SwitchLookAndFeel* get() {
+        static SwitchLookAndFeel inst;
+        return &inst;
+    }
+
+    void drawToggleButton(juce::Graphics& g, juce::ToggleButton& btn, bool highlighted, bool down) override {
+        auto bounds = btn.getLocalBounds().reduced(btn.getLocalBounds().getWidth() * 0.05f);
+        auto iconBounds = bounds.reduced(bounds.getWidth() * 0.18f);
+        auto toggle = btn.getToggleState();
+        int type = btn.getProperties().getWithDefault("type", Band::GLOBAL);
+        Colour mainColor = primaryColors[type];
+
+        if (type != Band::GLOBAL) {
+            g.setColour(Colors::darkGrey);
+            Path switchPath;
+            switchPath.addEllipse(bounds.toFloat());
+            g.fillEllipse(bounds.toFloat());
+
+            int shadowRadius = jmin(1, static_cast<int>(bounds.getWidth() * 0.1f));
+            DropShadow shadow{ Colors::black, shadowRadius, Point{0, 0}};
+            shadow.drawForPath(g, switchPath);
+        }
+
+        // Draw icon
+        auto icon = Drawable::createFromImageData(BinaryData::switchIcon_svg, BinaryData::switchIcon_svgSize);
+        Colour iconColor;
+        bool state = !btn.getToggleState();
+        if (highlighted) {
+            iconColor = state ? Colour{ 200, 200, 200 } : Colors::grey;
+        }
+        else {
+            iconColor = state ? Colors::white : Colors::darkGrey;
+        }
+        icon->replaceColour(Colour{ 0, 0, 0 }, iconColor);
+        icon->drawWithin(g, iconBounds.toFloat(), RectanglePlacement::centred, 1.0f);
+    }
+
+private:
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SwitchLookAndFeel)
 };

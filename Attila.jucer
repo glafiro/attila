@@ -13,6 +13,7 @@
               xcodeResource="1"/>
         <FILE id="mcsCQ4" name="hack.ttf" compile="0" resource="1" file="Resources/hack.ttf"
               xcodeResource="1"/>
+        <FILE id="ZIabxJ" name="switchIcon.svg" compile="0" resource="1" file="Resources/switchIcon.svg"/>
       </GROUP>
       <FILE id="AFyDq6" name="FilteredParameter.h" compile="0" resource="0"
             file="Source/FilteredParameter.h"/>
