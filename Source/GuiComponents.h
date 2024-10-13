@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "PresetManager.h"
 #include "LookAndFeel.h"
+#include "Utils.h"
 
 class Knob : public Component
 {
@@ -216,4 +217,92 @@ private:
     }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PresetMenu);
+};
+
+// Inspired from Holleman's audio Plug-in book
+class LevelMeter : public Component, private Timer
+{
+public:
+    LevelMeter(std::atomic<float>& measureL, std::atomic<float>& measureR) :
+        linearLevelL(measureL), linearLevelR(measureR), dbLevelL(clampDB), dbLevelR(clampDB)
+    {
+        startTimerHz(60);
+    }
+
+    ~LevelMeter() {} 
+
+    void paint(Graphics& g) override {
+        auto bounds = getLocalBounds();
+        auto padding = getHeight() * 0.02f;
+
+        int lineWidth = bounds.getWidth() * 0.6f;
+        int baselineOffset = bounds.getHeight() * 0.02f;
+        int meterWidth = lineWidth * 0.4f;
+
+        drawLevel(g, dbLevelL, 0, meterWidth);
+        drawLevel(g, dbLevelR, meterWidth + lineWidth * 0.2f, meterWidth);
+
+        int y = getYPosition(0.0f);
+        g.setColour(Colors::darkGrey);
+        g.fillRect(0, y, lineWidth, int(padding));
+
+    }
+
+    void resized() override {
+        auto bounds = getLocalBounds();
+        padding = getHeight() * 0.015f;
+
+        maxPos = padding;
+        minPos = bounds.getHeight() - padding;
+    }
+private:
+    void timerCallback() override {
+        dbLevelL = std::max(linearToDb(linearLevelL.load()), clampDB);
+        dbLevelR = std::max(linearToDb(linearLevelR.load()), clampDB);
+
+        repaint();
+    }
+
+    int getYPosition(float level) const noexcept
+    {
+        int val = int(std::round(jmap(level, maxdB, mindB, maxPos, minPos)));
+        if (val < maxPos) val = maxPos;
+        if (val > minPos) val = minPos;
+        return val;
+    }
+
+    void drawLevel(juce::Graphics& g, float level, int x, int width)
+    {
+
+        ColourGradient gradient{
+            Colors::blue, 0.0f, float(getHeight()), Colors::red, 0.0f, 0.0f, false
+        };
+        gradient.addColour(0.2, Colors::green);
+        gradient.addColour(0.8, Colors::yellow);
+        gradient.addColour(0.9, Colors::red);
+        int y = getYPosition(level);
+        int y0 = getYPosition(maxdB);
+        g.setColour(Colors::veryDarkGrey);
+        g.fillRect(x, y0, width, int(minPos) - y0);
+        g.setGradientFill(gradient);
+        g.fillRect(x, y, width, int(minPos) - y);
+    }
+
+    std::atomic<float>& linearLevelL;
+    std::atomic<float>& linearLevelR;
+
+    static constexpr float maxdB = MAX_DB;
+    static constexpr float mindB = MIN_DB;
+    static constexpr float stepdB = 6.0f;
+    static constexpr float clampDB = -120.0f;
+    static constexpr float clampLevel = 0.000001f;
+
+    float maxPos = 0.0f;
+    float minPos = 0.0f;
+    float dbLevelL{mindB};
+    float dbLevelR{mindB};
+
+    float padding{};
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LevelMeter)
 };

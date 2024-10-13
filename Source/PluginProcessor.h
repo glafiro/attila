@@ -14,8 +14,12 @@ using std::unordered_map;
 #include "APVTSParameter.h"
 #include "PresetManager.h"
 
+#ifndef MIN_DB
 #define MIN_DB  -60.0f
-#define MAX_DB  12.0f
+#endif
+#ifndef MAX_DB
+#define MAX_DB  6.0f
+#endif
 
 enum ParameterNames{
     INPUT_GAIN_1, OUTPUT_GAIN_1, 
@@ -112,6 +116,9 @@ public:
 
     AudioProcessorValueTreeState     apvts;
     PresetManager& getPresetManager() { return *presetManager; }
+
+    // Used for meters
+    std::atomic<float> levelL, levelR;
 
 private:
     //==============================================================================

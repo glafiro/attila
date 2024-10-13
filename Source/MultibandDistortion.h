@@ -84,8 +84,8 @@ private:
 	}
 
 	float limit(float sample) {
-		if (sample > 1.0f) return 1.0f;
-		if (sample < -1.0f) return -1.0f;
+		if (sample > 4.0f) return 4.0f;
+		if (sample < -4.0f) return -4.0f;
 		return sample;
 	}
 };
@@ -195,8 +195,8 @@ public:
 				float dry = (1.0f - mix.read()) * sample;
 				float amplitude = allEnabled.next();
 
-				inputBuffer[ch][s] =
-					sample * (1.0f - amplitude) + ((wet + dry) * amplitude * outputGain.next());
+				float output = sample * (1.0f - amplitude) + ((wet + dry) * amplitude * outputGain.next());
+				inputBuffer[ch][s] = output;
 			}
 		}
 	}

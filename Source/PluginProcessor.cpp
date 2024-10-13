@@ -117,6 +117,9 @@ void AttilaAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     }
 
     distortion.prepare(distortionParameters);
+
+    levelL.store(0.0f);
+    levelR.store(0.0f);
 }
 
 void AttilaAudioProcessor::updateDSP()
@@ -188,6 +191,18 @@ void AttilaAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer&
     );
 
     oversampling.processSamplesDown(block);
+    
+    auto maxL = 0.0f, maxR = 0.0f;
+
+    for (int s = 0; s < buffer.getNumSamples(); ++s) {
+        maxL = std::max(maxL, block.getChannelPointer(0)[s]);
+        if (buffer.getNumChannels() > 1) {
+            maxR = std::max(maxR, block.getChannelPointer(1)[s]);
+        }
+    }
+
+    levelL.store(maxL);
+    levelR.store(maxR);
 
 }
 

@@ -6,8 +6,10 @@ using Track = Grid::TrackInfo;
 using Fr = Grid::Fr;
 
 //==============================================================================
-AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p) : 
+    AudioProcessorEditor (&p), 
+    audioProcessor (p), 
+    levelMeter(p.levelL, p.levelR)
 {
     lowBandGroup.setText("LOW");
     lowBandGroup.setTextLabelPosition(Justification::horizontallyCentred);
@@ -57,6 +59,8 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     highBandGroup.setLookAndFeel(&groupComponentLookAndFeel);
     globalGroup.setLookAndFeel(&groupComponentLookAndFeel);
 
+    addAndMakeVisible(levelMeter);
+
     setSize (screenWidth, screenHeight);
 }
 
@@ -91,7 +95,7 @@ void AttilaAudioProcessorEditor::resized()
     auto bottomRowHeight = bounds.getHeight() * 0.43f;
 
     auto bandGroupWidth = bounds.getWidth() * 0.333f;
-    auto globalGroupWidth = bounds.getWidth() * 0.2f;
+    auto globalGroupWidth = bounds.getWidth() * 0.19f;
     auto padding = bandGroupWidth * 0.06f;
     auto bandTopHeight = bottomRowHeight * 0.18f;
     auto bandGroupHeight = bottomRowHeight - bandTopHeight;
@@ -103,6 +107,8 @@ void AttilaAudioProcessorEditor::resized()
     highBandGroup.setBounds(midBandGroup.getX() + bandGroupWidth, topRowHeight + midRowHeight, bandGroupWidth, bottomRowHeight);
 
     globalGroup.setBounds(bounds.getX(), topRowHeight, globalGroupWidth, midRowHeight);
+    auto globalGroupBounds = globalGroup.getLocalBounds().reduced(padding);
+    levelMeter.setBounds(globalGroupBounds.getX() + knobW + padding, topRowHeight + padding, globalGroupWidth * 0.44f, globalGroupBounds.getHeight());
     presetMenu.setBounds(switchSize * 1.8f, bounds.getY(), bounds.getWidth() * 0.6f, topRowHeight - padding / 2.0f);
 
     Grid lowBandGrid;
@@ -160,6 +166,7 @@ void AttilaAudioProcessorEditor::resized()
     highBandGrid.performLayout(highBandGroup.getLocalBounds().
         removeFromBottom(bandGroupHeight).
         removeFromRight(bandGroupWidth - padding));
+
 
     globalGrid.performLayout(globalGroup.getLocalBounds().reduced(padding));
 
