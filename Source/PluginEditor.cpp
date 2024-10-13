@@ -60,6 +60,7 @@ AttilaAudioProcessorEditor::AttilaAudioProcessorEditor (AttilaAudioProcessor& p)
     globalGroup.setLookAndFeel(&groupComponentLookAndFeel);
 
     addAndMakeVisible(levelMeter);
+    addAndMakeVisible(analyzer);
 
     setSize (screenWidth, screenHeight);
 }
@@ -110,6 +111,8 @@ void AttilaAudioProcessorEditor::resized()
     auto globalGroupBounds = globalGroup.getLocalBounds().reduced(padding);
     levelMeter.setBounds(globalGroupBounds.getX() + knobW + padding, topRowHeight + padding, globalGroupWidth * 0.44f, globalGroupBounds.getHeight());
     presetMenu.setBounds(switchSize * 1.8f, bounds.getY(), bounds.getWidth() * 0.6f, topRowHeight - padding / 2.0f);
+    analyzer.setBounds(bounds.getWidth() * 0.2f, topRowHeight * 1.04f, bounds.getWidth() * 0.8f, midRowHeight * 0.99f);
+
 
     Grid lowBandGrid;
     Grid midBandGrid;
@@ -174,4 +177,5 @@ void AttilaAudioProcessorEditor::resized()
     midBypass.setBounds(padding + bandGroupWidth, topRowHeight + midRowHeight + padding * 0.5f, switchSize, switchSize);
     highBypass.setBounds(padding + bandGroupWidth * 2, topRowHeight + midRowHeight + padding * 0.5f, switchSize, switchSize);
     globalBypass.setBounds(bounds.getX(), 0.0f, switchSize * 1.5f, switchSize * 1.5f);
+
 }

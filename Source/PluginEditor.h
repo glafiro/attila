@@ -70,6 +70,7 @@ private:
     std::unique_ptr<Drawable> logo = Drawable::createFromImageData(BinaryData::logo_svg, BinaryData::logo_svgSize);
 
     LevelMeter levelMeter;
+    SpectrumAnalyzerGroup analyzer{ apvtsParameters[LOW_MID_CUT].get() , apvtsParameters[MID_HIGH_CUT].get(), audioProcessor.apvts };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AttilaAudioProcessorEditor)
 };

@@ -6,6 +6,7 @@ using std::array;
 
 enum Band { LOW, MID, HIGH, GLOBAL};
 enum PresetBtnType { DELETE, PREV, NEXT, SAVE};
+enum FreqKnobBand { LOWMID, MIDHIGH };
 
 namespace Colors
 {	
@@ -412,4 +413,104 @@ private:
         Font btnFont;
     Font presetFont;
     Font menuFont;
+};
+
+
+
+class SpectrumAnalyzerGroupLookAndFeel : public LookAndFeel_V4
+{
+    Font labelFont, textBoxFont;
+
+public:
+    SpectrumAnalyzerGroupLookAndFeel() {
+        labelFont = Font(Typeface::createSystemTypefaceFor(BinaryData::coolvetica_otf, BinaryData::coolvetica_otfSize));
+        textBoxFont = Font(Typeface::createSystemTypefaceFor(BinaryData::hack_ttf, BinaryData::hack_ttfSize));
+    }
+
+    static SpectrumAnalyzerGroupLookAndFeel* get() {
+        static SpectrumAnalyzerGroupLookAndFeel inst;
+        return &inst;
+    }
+
+    void drawRotarySlider(Graphics& g, int x, int y, int w, int h, float pos, float startAngle, float endAngle, Slider& slider) override {
+
+        Colour dialColor = Colors::cream;
+        
+        auto bounds = slider.getLocalBounds().reduced(w * 0.03f);
+
+        auto labelArea = Rectangle<int>{ x, int(y + h / 5), int(w * 0.38f), h };
+
+        auto center = bounds.getCentre();
+        auto radius = bounds.getHeight() / 2.0f;
+
+        // dialRadius is the size of the circle that appears on the knob.
+        // bottomLineWidth is the line width of the bottom (dark) arc around the knob.
+        // The colored part of the arc is always a multiple of the dark line.
+        float dialRadius;
+        dialRadius = bounds.getHeight() * 0.07f;
+        auto halfDialRadius = dialRadius / 2.0f;
+
+        int type = slider.getProperties().getWithDefault("type", 0);
+        auto fontSize = h * 0.6f;
+        g.setColour(Colors::cream);
+        g.setFont(labelFont.withHeight(fontSize));
+        if (type == FreqKnobBand::LOWMID) {
+            g.drawFittedText("low / mid", labelArea, Justification::right, false);
+        }
+        else if (type == FreqKnobBand::MIDHIGH) {
+            g.drawFittedText("mid / high", labelArea, Justification::right, false);
+        }
+
+        // --- Draw the dial
+        auto dialBounds = bounds.reduced(dialRadius * 2.0f);
+        // innerRadius goes from the center to the end of the dial.
+        auto innerRadius = dialBounds.getWidth() / 2.0f - halfDialRadius;
+        auto toAngle = startAngle + pos * (endAngle - startAngle);
+
+        // The dial circle
+        Point<float> dialPos(
+            center.getX() + radius * 0.8f * std::sin(toAngle),
+            center.getY() - radius * 0.8f * std::cos(toAngle)
+        );
+
+        // The knob
+        Path knobPath, innerKnobPath;
+        int shadowOffset = bounds.getHeight() * 0.1f;
+        DropShadow knobShadow{ Colors::black, static_cast<int>(h * 0.35f), Point{0, shadowOffset} };
+        knobPath.addEllipse(center.getX() - radius, center.getY() - radius, radius * 2, radius * 2);
+
+        knobShadow.drawForPath(g, knobPath);
+        g.setColour(Colors::black);
+        g.fillPath(knobPath);
+
+        // The dial circle
+        Path knobDialPath;
+        knobDialPath.addEllipse(dialPos.getX() - halfDialRadius, dialPos.getY() - halfDialRadius, dialRadius, dialRadius);
+        g.setColour(dialColor);
+        g.fillPath(knobDialPath);
+
+        float textBoxHeight = bounds.getHeight() * 0.25f;
+        auto textBoxBounds = Rectangle<float>(labelArea.getWidth() + radius * 3, 
+            y + (h * 0.4f), w * 0.4f, h * 0.6f).reduced(0.9f);
+
+        g.setColour(Colors::grey);
+        g.fillRoundedRectangle(textBoxBounds, w * 0.01f);
+
+        fontSize = textBoxBounds.getHeight() * 0.75f;
+        g.setColour(Colors::cream);
+        g.setFont(textBoxFont.withHeight(fontSize));
+        g.drawText(slider.getTextFromValue(slider.getValue()), textBoxBounds, Justification::centred, false);
+
+    }
+
+    Slider::SliderLayout getSliderLayout(Slider& slider) override
+    {
+        Slider::SliderLayout layout;
+        auto bounds = slider.getLocalBounds();
+        auto sliderBounds = Rectangle<int>(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight() * 0.75f);
+        layout.sliderBounds = sliderBounds;
+        auto textBoxBounds = Rectangle<int>(bounds.getX(), sliderBounds.getY() + sliderBounds.getHeight(), bounds.getWidth(), bounds.getHeight() * 0.25f);
+        layout.textBoxBounds = textBoxBounds;
+        return layout;
+    }
 };

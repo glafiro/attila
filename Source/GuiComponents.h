@@ -319,3 +319,69 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LevelMeter)
 };
+
+class SpectrumAnalyzerGroup : public Component
+{
+    AudioProcessorValueTreeState& state;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> freq1Attachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> freq2Attachment;
+    Slider lowMidSlider;
+    Label lowMidLabel;
+    Slider midHighSlider;
+    Label midHighLabel;
+
+public:
+    SpectrumAnalyzerGroup(IAPVTSParameter* freq1Param, IAPVTSParameter* freq2Param, AudioProcessorValueTreeState& apvts) :
+        state(apvts)
+    {
+        lowMidSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+        lowMidSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
+        lowMidSlider.getProperties().set("type", FreqKnobBand::LOWMID);
+        lowMidSlider.onValueChange = [this]() {lowMidSliderChanged(); };
+
+        addAndMakeVisible(lowMidSlider);
+        
+        midHighSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+        midHighSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
+        midHighSlider.getProperties().set("type", FreqKnobBand::MIDHIGH);
+        midHighSlider.onValueChange = [this]() {midHighSliderChanged(); };
+        addAndMakeVisible(midHighSlider);
+
+        freq1Attachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(
+            state, freq1Param->id.getParamID(), lowMidSlider
+        );
+
+        freq2Attachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(
+            state, freq2Param->id.getParamID(), midHighSlider
+        );
+
+        setLookAndFeel(SpectrumAnalyzerGroupLookAndFeel::get());
+
+        setSize(10, 10);
+    }
+
+    void lowMidSliderChanged() {
+        if (lowMidSlider.getValue() > midHighSlider.getValue()) {
+            midHighSlider.setValue(lowMidSlider.getValue());
+        }
+    }
+    
+    void midHighSliderChanged() {
+        if (midHighSlider.getValue() < lowMidSlider.getValue()) {
+            lowMidSlider.setValue(midHighSlider.getValue());
+        }
+    }
+
+    void resized() override {
+        auto bounds = getLocalBounds();
+        float width = bounds.getWidth();
+        float height = bounds.getHeight();
+        float spectrumHeight = height * 0.865;
+        float sliderSize = height - spectrumHeight;
+        float textBoxWidth = width * 0.15f;
+
+                
+        lowMidSlider.setBounds(bounds.getX() + width * 0.1f, spectrumHeight, sliderSize + textBoxWidth * 2, sliderSize);
+        midHighSlider.setBounds(bounds.getX() + width * 0.5f, spectrumHeight, sliderSize + textBoxWidth * 2, sliderSize);
+    }
+};
