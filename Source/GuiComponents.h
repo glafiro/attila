@@ -226,7 +226,8 @@ public:
     LevelMeter(std::atomic<float>& measureL, std::atomic<float>& measureR) :
         linearLevelL(measureL), linearLevelR(measureR), dbLevelL(clampDB), dbLevelR(clampDB)
     {
-        startTimerHz(60);
+        startTimerHz(refreshRate);
+        decay = 1.0f - std::exp(-1.0f / (float(refreshRate) * 0.2f));
     }
 
     ~LevelMeter() {} 
@@ -244,7 +245,7 @@ public:
 
         int y = getYPosition(0.0f);
         g.setColour(Colors::darkGrey);
-        g.fillRect(0, y, lineWidth, int(padding));
+        g.fillRect(0, y, lineWidth, int(padding / 2.0f));
 
     }
 
@@ -257,8 +258,8 @@ public:
     }
 private:
     void timerCallback() override {
-        dbLevelL = std::max(linearToDb(linearLevelL.load()), clampDB);
-        dbLevelR = std::max(linearToDb(linearLevelR.load()), clampDB);
+        updateLevel(linearLevelL.load(), levelL, dbLevelL);
+        updateLevel(linearLevelR.load(), levelR, dbLevelR);
 
         repaint();
     }
@@ -269,6 +270,13 @@ private:
         if (val < maxPos) val = maxPos;
         if (val > minPos) val = minPos;
         return val;
+    }
+
+    void updateLevel(float newLevel, float& smooth, float& leveldB) const {
+        if (newLevel > smooth) smooth = newLevel;
+        else smooth += (newLevel - smooth) * decay;
+        if (smooth > clampLevel) leveldB = juce::Decibels::gainToDecibels(smooth);
+        else leveldB = clampDB;
     }
 
     void drawLevel(juce::Graphics& g, float level, int x, int width)
@@ -296,6 +304,7 @@ private:
     static constexpr float stepdB = 6.0f;
     static constexpr float clampDB = -120.0f;
     static constexpr float clampLevel = 0.000001f;
+    static constexpr int refreshRate = 60;
 
     float maxPos = 0.0f;
     float minPos = 0.0f;
@@ -303,6 +312,10 @@ private:
     float dbLevelR{mindB};
 
     float padding{};
+
+    float decay = 0.0f;
+    float levelL = clampLevel;
+    float levelR = clampLevel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LevelMeter)
 };

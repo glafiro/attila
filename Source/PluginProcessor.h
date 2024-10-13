@@ -14,12 +14,10 @@ using std::unordered_map;
 #include "APVTSParameter.h"
 #include "PresetManager.h"
 
-#ifndef MIN_DB
 #define MIN_DB  -60.0f
-#endif
-#ifndef MAX_DB
 #define MAX_DB  6.0f
-#endif
+#define MAX_KNEE 24.0f
+
 
 enum ParameterNames{
     INPUT_GAIN_1, OUTPUT_GAIN_1, 

@@ -279,7 +279,7 @@ AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::createParame
     layout.add(std::make_unique <AudioParameterFloat>(
         apvtsParameters[ParameterNames::KNEE_1]->id,
         apvtsParameters[ParameterNames::KNEE_1]->displayValue,
-        NormalisableRange<float>{ 1.0f, 48.0f, 0.01f },
+        NormalisableRange<float>{ 1.0f, MAX_KNEE, 0.01f },
         apvtsParameters[ParameterNames::KNEE_1]->getDefault(),
         AudioParameterFloatAttributes().withStringFromValueFunction(truncateDecimals)
     ));
@@ -324,7 +324,7 @@ AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::createParame
     layout.add(std::make_unique <AudioParameterFloat>(
         apvtsParameters[ParameterNames::KNEE_2]->id,
         apvtsParameters[ParameterNames::KNEE_2]->displayValue,
-        NormalisableRange<float>{ 1.0f, 48.0f, 0.001f },
+        NormalisableRange<float>{ 1.0f, MAX_KNEE, 0.001f },
         apvtsParameters[ParameterNames::KNEE_2]->getDefault(),
         AudioParameterFloatAttributes().withStringFromValueFunction(truncateDecimals)
 
@@ -371,7 +371,7 @@ AudioProcessorValueTreeState::ParameterLayout AttilaAudioProcessor::createParame
     layout.add(std::make_unique <AudioParameterFloat>(
         apvtsParameters[ParameterNames::KNEE_3]->id,
         apvtsParameters[ParameterNames::KNEE_3]->displayValue,
-        NormalisableRange<float>{ 1.0f, 48.0f, 0.001f },
+        NormalisableRange<float>{ 1.0f, MAX_KNEE, 0.001f },
         apvtsParameters[ParameterNames::KNEE_3]->getDefault(),
         AudioParameterFloatAttributes().withStringFromValueFunction(truncateDecimals)
 
