@@ -15,7 +15,8 @@ AttilaAudioProcessor::AttilaAudioProcessor()
 #endif
     ),
     apvts(*this, nullptr, "Parameters", createParameterLayout()),
-    distortion()
+    distortion(),
+    spectrumAnalyzer(getSampleRate(), apvtsParameters[LOW_MID_CUT]->getDefault(), apvtsParameters[MID_HIGH_CUT]->getDefault())
 #endif
 {
     if (!apvts.state.isValid()) {
@@ -112,6 +113,8 @@ void AttilaAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     distortionParameters.set("blockSize", samplesPerBlock);
     distortionParameters.set("nChannels", nChannels);
 
+    spectrumAnalyzer.setSampleRate(sampleRate);
+
     for (auto& param : apvtsParameters) {
         distortionParameters.set(param->id.getParamID().toStdString(), param->getDefault());
     }
@@ -195,7 +198,10 @@ void AttilaAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer&
     auto maxL = 0.0f, maxR = 0.0f;
 
     for (int s = 0; s < buffer.getNumSamples(); ++s) {
+        auto sample = block.getChannelPointer(0)[s];
         maxL = std::max(maxL, block.getChannelPointer(0)[s]);
+        spectrumAnalyzer.pushNextSampleIntoFifo(sample);
+
         if (buffer.getNumChannels() > 1) {
             maxR = std::max(maxR, block.getChannelPointer(1)[s]);
         }

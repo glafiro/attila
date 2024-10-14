@@ -26,6 +26,8 @@
       </GROUP>
       <FILE id="AFyDq6" name="FilteredParameter.h" compile="0" resource="0"
             file="Source/FilteredParameter.h"/>
+      <FILE id="nSNjoe" name="SpectrumAnalyzer.h" compile="0" resource="0"
+            file="Source/SpectrumAnalyzer.h"/>
       <FILE id="UwhsGK" name="APVTSParameter.h" compile="0" resource="0"
             file="Source/APVTSParameter.h"/>
       <FILE id="H0Xruc" name="Utils.h" compile="0" resource="0" file="Source/Utils.h"/>

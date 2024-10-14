@@ -5,6 +5,9 @@
 #include "LookAndFeel.h"
 #include "Utils.h"
 
+#include <array>
+using std::array;
+
 class Knob : public Component
 {
 public:
@@ -275,7 +278,7 @@ private:
     void updateLevel(float newLevel, float& smooth, float& leveldB) const {
         if (newLevel > smooth) smooth = newLevel;
         else smooth += (newLevel - smooth) * decay;
-        if (smooth > clampLevel) leveldB = juce::Decibels::gainToDecibels(smooth);
+        if (smooth > clampLevel) leveldB = linearToDb(smooth);
         else leveldB = clampDB;
     }
 
@@ -326,13 +329,14 @@ class SpectrumAnalyzerGroup : public Component
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> freq1Attachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> freq2Attachment;
     Slider lowMidSlider;
-    Label lowMidLabel;
     Slider midHighSlider;
-    Label midHighLabel;
+    SpectrumAnalyzer& spectrumAnalyzer;
 
 public:
-    SpectrumAnalyzerGroup(IAPVTSParameter* freq1Param, IAPVTSParameter* freq2Param, AudioProcessorValueTreeState& apvts) :
-        state(apvts)
+    SpectrumAnalyzerGroup(IAPVTSParameter* freq1Param, IAPVTSParameter* freq2Param, 
+        AudioProcessorValueTreeState& apvts, SpectrumAnalyzer& analyzer
+    ) :
+        state(apvts), spectrumAnalyzer(analyzer)
     {
         lowMidSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
         lowMidSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
@@ -346,6 +350,8 @@ public:
         midHighSlider.getProperties().set("type", FreqKnobBand::MIDHIGH);
         midHighSlider.onValueChange = [this]() {midHighSliderChanged(); };
         addAndMakeVisible(midHighSlider);
+
+        addAndMakeVisible(spectrumAnalyzer);
 
         freq1Attachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(
             state, freq1Param->id.getParamID(), lowMidSlider
@@ -364,12 +370,16 @@ public:
         if (lowMidSlider.getValue() > midHighSlider.getValue()) {
             midHighSlider.setValue(lowMidSlider.getValue());
         }
+
+        spectrumAnalyzer.lowMidCut = lowMidSlider.getValue();
     }
     
     void midHighSliderChanged() {
         if (midHighSlider.getValue() < lowMidSlider.getValue()) {
             lowMidSlider.setValue(midHighSlider.getValue());
         }
+        
+        spectrumAnalyzer.midHighCut = midHighSlider.getValue();
     }
 
     void resized() override {
@@ -380,7 +390,8 @@ public:
         float sliderSize = height - spectrumHeight;
         float textBoxWidth = width * 0.15f;
 
-                
+        spectrumAnalyzer.setBounds(bounds.getX(), bounds.getY(), width, spectrumHeight);
+
         lowMidSlider.setBounds(bounds.getX() + width * 0.1f, spectrumHeight, sliderSize + textBoxWidth * 2, sliderSize);
         midHighSlider.setBounds(bounds.getX() + width * 0.5f, spectrumHeight, sliderSize + textBoxWidth * 2, sliderSize);
     }

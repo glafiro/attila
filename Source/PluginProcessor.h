@@ -13,6 +13,7 @@ using std::unordered_map;
 #include "MultibandDistortion.h"
 #include "APVTSParameter.h"
 #include "PresetManager.h"
+#include "SpectrumAnalyzer.h"
 
 #define MIN_DB  -60.0f
 #define MAX_DB  6.0f
@@ -66,7 +67,7 @@ static std::array<std::unique_ptr<IAPVTSParameter>, ParameterNames::PARAMETER_CO
     std::make_unique<APVTSParameterFloat> ("inputGain",       "input",        0.0f),
     std::make_unique<APVTSParameterFloat> ("outputGain",      "output",       0.0f),
     std::make_unique<APVTSParameterBool>  ("bypass",          "bypass",       false),
-    std::make_unique<APVTSParameterFloat> ("lowMidCut",       "Low/Mid Cut",  700.0f),
+    std::make_unique<APVTSParameterFloat> ("lowMidCut",       "Low/Mid Cut",  440.0f),
     std::make_unique<APVTSParameterFloat> ("midHighCut",      "Mid/high Cut", 5000.0f)
 };
 
@@ -114,9 +115,11 @@ public:
 
     AudioProcessorValueTreeState     apvts;
     PresetManager& getPresetManager() { return *presetManager; }
+    SpectrumAnalyzer spectrumAnalyzer;
 
     // Used for meters
     std::atomic<float> levelL, levelR;
+
 
 private:
     //==============================================================================
