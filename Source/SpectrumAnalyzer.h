@@ -27,6 +27,10 @@ class SpectrumAnalyzer : public Component, private Timer
     float sampleRate;
 
     Path fftPath;
+    float drive1{};
+    float drive2{};
+    float drive3{};
+
 public:
     float lowMidCut{};
     float midHighCut{};
@@ -60,6 +64,12 @@ public:
         sampleRate = sr;
     }
 
+    void updateDriveValues(float d1, float d2, float d3) {
+        drive1 = d1;
+        drive2 = d2;
+        drive3 = d3;
+    }
+
     void getNextFFTData() {
         window.multiplyWithWindowingTable(fftData.data(), FFTParams::FFT_SIZE);
         forwardFFT.performFrequencyOnlyForwardTransform(fftData.data());
@@ -75,8 +85,10 @@ public:
 
     void paint(Graphics& g) override {
         auto bounds = getLocalBounds().reduced(2.0f);
-        auto bottom = bounds.getHeight() + bounds.getY();
+        auto top = bounds.getY();
+        auto bottom = bounds.getHeight() + top;
         auto width = bounds.getWidth();
+        auto height = bounds.getHeight();
 
         int lowMidPos = mapFromLog10(lowMidCut, 20.f, 20000.f) * width;
         int midHighPos = mapFromLog10(midHighCut, 20.f, 20000.f) * width;
@@ -88,6 +100,31 @@ public:
         g.drawRoundedRectangle(bounds.toFloat(), 5, 3.0f);
                 
         drawFrame(g);
+
+        
+        if (drive1 > 0.0f) {
+            auto bandArea = Rectangle<float>(bounds.getX(), bottom - drive1 * height, lowMidPos, height * drive1);
+            g.setColour(Colors::red.withAlpha(0.3f * drive1));       
+            g.fillRect(bandArea);
+            g.setColour(Colors::red);       
+            g.fillRect(bandArea.withHeight(3));
+        }        
+        
+        if (drive2 > 0.0f) {
+            auto bandArea = Rectangle<float>(lowMidPos, bottom - drive2 * height, midHighPos - lowMidPos, height * drive2);
+            g.setColour(Colors::yellow.withAlpha(0.3f * drive2));       
+            g.fillRect(bandArea);
+            g.setColour(Colors::yellow);       
+            g.fillRect(bandArea.withHeight(3));
+        }
+        
+        if (drive3 > 0.0f) {
+            auto bandArea = Rectangle<float>(midHighPos, bottom - drive3 * height, lowMidPos, height * drive3);
+            g.setColour(Colors::green.withAlpha(0.3f * drive3));       
+            g.fillRect(bandArea);
+            g.setColour(Colors::green);       
+            g.fillRect(bandArea.withHeight(3));
+        }
 
         g.setColour(Colors::cream);
         g.fillRect(lowMidPos, bounds.getY(), 3, bounds.getHeight());

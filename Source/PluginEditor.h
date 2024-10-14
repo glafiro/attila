@@ -75,7 +75,10 @@ private:
         apvtsParameters[LOW_MID_CUT].get() , 
         apvtsParameters[MID_HIGH_CUT].get(), 
         audioProcessor.apvts, 
-        audioProcessor.spectrumAnalyzer
+        audioProcessor.spectrumAnalyzer,
+        lowDrive,
+        midDrive,
+        highDrive
     };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AttilaAudioProcessorEditor)

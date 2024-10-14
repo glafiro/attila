@@ -332,11 +332,17 @@ class SpectrumAnalyzerGroup : public Component
     Slider midHighSlider;
     SpectrumAnalyzer& spectrumAnalyzer;
 
+    Knob& driveKnob1;
+    Knob& driveKnob2;
+    Knob& driveKnob3;
+    
 public:
     SpectrumAnalyzerGroup(IAPVTSParameter* freq1Param, IAPVTSParameter* freq2Param, 
-        AudioProcessorValueTreeState& apvts, SpectrumAnalyzer& analyzer
+        AudioProcessorValueTreeState& apvts, SpectrumAnalyzer& analyzer,
+        Knob& k1, Knob& k2, Knob& k3
     ) :
-        state(apvts), spectrumAnalyzer(analyzer)
+        state(apvts), spectrumAnalyzer(analyzer),
+        driveKnob1(k1), driveKnob2(k2), driveKnob3(k3)
     {
         lowMidSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
         lowMidSlider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
@@ -350,6 +356,10 @@ public:
         midHighSlider.getProperties().set("type", FreqKnobBand::MIDHIGH);
         midHighSlider.onValueChange = [this]() {midHighSliderChanged(); };
         addAndMakeVisible(midHighSlider);
+        
+        driveKnob1.slider.onValueChange = [this]() {driveChanged(); };
+        driveKnob2.slider.onValueChange = [this]() {driveChanged(); };
+        driveKnob3.slider.onValueChange = [this]() {driveChanged(); };
 
         addAndMakeVisible(spectrumAnalyzer);
 
@@ -364,6 +374,14 @@ public:
         setLookAndFeel(SpectrumAnalyzerGroupLookAndFeel::get());
 
         setSize(10, 10);
+    }
+
+    void driveChanged() {
+        spectrumAnalyzer.updateDriveValues(
+            jmap(float(driveKnob1.slider.getValue()), 0.0f, 36.0f, 0.0f, 1.0f),
+            jmap(float(driveKnob2.slider.getValue()), 0.0f, 36.0f, 0.0f, 1.0f),
+            jmap(float(driveKnob3.slider.getValue()), 0.0f, 36.0f, 0.0f, 1.0f)
+        );
     }
 
     void lowMidSliderChanged() {
