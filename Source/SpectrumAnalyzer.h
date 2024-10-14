@@ -74,15 +74,24 @@ public:
     }
 
     void paint(Graphics& g) override {
-        auto bounds = getLocalBounds();
+        auto bounds = getLocalBounds().reduced(2.0f);
+        auto bottom = bounds.getHeight() + bounds.getY();
         auto width = bounds.getWidth();
 
-        auto lowMidPos = mapFromLog10(lowMidCut, 20.f, 20000.f) * width;
+        int lowMidPos = mapFromLog10(lowMidCut, 20.f, 20000.f) * width;
+        int midHighPos = mapFromLog10(midHighCut, 20.f, 20000.f) * width;
+
+        g.setColour(Colors::black);
+        g.fillRoundedRectangle(bounds.toFloat(), 5);
+                
+        g.setColour(Colors::grey);
+        g.drawRoundedRectangle(bounds.toFloat(), 5, 3.0f);
                 
         drawFrame(g);
 
         g.setColour(Colors::cream);
-        g.drawVerticalLine(lowMidPos, bounds.getY(), bounds.getHeight());
+        g.fillRect(lowMidPos, bounds.getY(), 3, bounds.getHeight());
+        g.fillRect(midHighPos, bounds.getY(), 3, bounds.getHeight());
     }
 
     void drawFrame(Graphics& g) {
@@ -100,7 +109,6 @@ public:
         spectrumPath.preallocateSpace(3 * width);
 
         float y = top + height;
-        
 
         float lastX = 0.0f;
         float lastY = y;
@@ -132,7 +140,6 @@ public:
         }
 
         spectrumPath.lineTo(lastX, float(top + height));  
-        spectrumPath.lineTo(0, float(top + height));      
 
         g.setColour(Colors::cream.withAlpha(0.3f)); 
         g.fillPath(spectrumPath);
