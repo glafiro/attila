@@ -8,6 +8,10 @@
               maxBinaryFileSize="20971520">
   <MAINGROUP id="P02Tfp" name="Attila">
     <GROUP id="{E0B5D8C0-8ACF-026C-879F-C7C12E8769CF}" name="Source">
+      <FILE id="giYCA2" name="GuiComponents.cpp" compile="1" resource="0"
+            file="Source/GuiComponents.cpp"/>
+      <FILE id="NsN9bB" name="MultibandDistortion.cpp" compile="1" resource="0"
+            file="Source/MultibandDistortion.cpp"/>
       <GROUP id="{5D991C01-EF6B-0372-546F-8074F80ABEC3}" name="Resources">
         <FILE id="vmjXIU" name="coolvetica.otf" compile="0" resource="1" file="Resources/coolvetica.otf"
               xcodeResource="1"/>
