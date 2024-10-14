@@ -6,13 +6,13 @@ Attila is an open-source multiband distortion and bitcrushing plug-in. Within ea
 
 It is made with JUCE and it's available for Windows, MacOS and Linux in VST, AU and LV2 formats.
 
---
+---
 
 ## To-do
 
 * Improve performance
 
---
+---
 
 ## License
 
